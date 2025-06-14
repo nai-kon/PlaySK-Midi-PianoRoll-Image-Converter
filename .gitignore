@@ -1,0 +1,15 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+bin/
+
+# Eclipse
+.project
+.classpath
+.settings
+
+
+*.mid
+*.png
