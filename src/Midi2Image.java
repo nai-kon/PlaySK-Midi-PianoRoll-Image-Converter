@@ -17,14 +17,15 @@ import javax.sound.midi.Track;
 public class Midi2Image {
 
 	final static int ROLL_DPI = 300;
-	final static int ROLL_TEMPO = 100;
+	final static int ROLL_TEMPO = 0;
 	final static int ROLL_WIDTH_PX = (int) (11.25 * ROLL_DPI);
-	final static int ROLL_MARGIN_PX = 50;
+	final static int ROLL_MARGIN_PX = 50; // @300dpi
 	final static int HOLE_WIDTH_PX = 18; // @300dpi
 	final static int NOTE0_CENTER_INCH = 36; // @300dpi
 	final static int NOTE99_CENTER_INCH = 3340; // @300dpi
 	final static int ROLL_COLOR = 120; // gray scale
 	final static int SUSTAIN_NOTE_NO = 18;
+	final static int SOFTPEDAL_NOTE_NO = 113;
 
 	protected static int getHoleX(int note_no) {
 		// Return hole x position in pixel by note number 
@@ -43,6 +44,8 @@ public class Midi2Image {
 		int hole_y = img_length - getTick2Px(onTick, tempo, bpm, ppq) - hole_h;
 		int hole_y_margin = (int) HOLE_WIDTH_PX / 3;
 		int chain_perforation_th_len = 85;
+		g2d.setColor(Color.WHITE);
+		
 		// Chain Perforation
 		int y = hole_y;
 		for (; y < hole_y + hole_h - chain_perforation_th_len; y += hole_y_margin + HOLE_WIDTH_PX) {
@@ -50,6 +53,9 @@ public class Midi2Image {
 		}
 		// Normal Perforation
 		g2d.fillRoundRect(hole_x, y, HOLE_WIDTH_PX, hole_h - (y - hole_y), HOLE_WIDTH_PX, HOLE_WIDTH_PX);
+		// somewhow, fillOval() result pops out 1px on left, so fill it.
+		g2d.setColor(new Color(ROLL_COLOR, ROLL_COLOR, ROLL_COLOR));
+		g2d.drawLine(hole_x, hole_y, hole_x, hole_y + hole_h);
 	}
 
 	public static void main(String[] args) {
@@ -111,6 +117,14 @@ public class Midi2Image {
 							drawHole(g2d, img_h, SUSTAIN_NOTE_NO, tempo, bpm, ppq, onTick, tick);
 						}
 
+						// Soft Pedal On/Off
+						if (cmd == ShortMessage.CONTROL_CHANGE && note == 67 && velocity > 0) {
+							noteOnTicks[SOFTPEDAL_NOTE_NO] = tick;
+						} else if (cmd == ShortMessage.CONTROL_CHANGE && note == 67 && velocity == 0) {
+							long onTick = noteOnTicks[SOFTPEDAL_NOTE_NO];
+							drawHole(g2d, img_h, SOFTPEDAL_NOTE_NO, tempo, bpm, ppq, onTick, tick);
+						}
+						
 						if (cmd == ShortMessage.NOTE_ON && velocity > 0) {
 							noteOnTicks[note] = tick;
 						} else if (cmd == ShortMessage.NOTE_OFF || cmd == ShortMessage.NOTE_ON && velocity == 0) {
