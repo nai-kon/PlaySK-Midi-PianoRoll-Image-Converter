@@ -8,18 +8,31 @@ from PIL import Image, ImageDraw
 class Midi2Image:
     def __init__(self):
         self.roll_dpi = 300
-        self.roll_tempo = 95
-        self.roll_width = int(11.25 * self.roll_dpi)
-        self.roll_margin = 50
-        self.hole_width = 18
-        self.hole_y_margin = self.hole_width // 3
-        self.hole_0_center = 36
-        self.hole_99_center = 3340
+        self.roll_tempo = 90
+        # in inches
+        self.roll_start_pad = 2
+        self.roll_end_pad = 2
+        self.roll_margin = 0.25
+        self.roll_width = 11.25
+        self.hole_width = 0.075
+        self.chain_perforation_gap = 0.035
+        self.leftest_hole_center = 0.14  # from left edge of the roll
+        self.rightest_hole_center = self.roll_width - 0.14  # from right edge of the roll
+        self.hole_num = 100
         self.roll_color= 120  # grayscale
         self.reduce_px = 10
         self.chain_perforation_th_len = 85
+
+        # in pixels
+        self.roll_start_pad_px = int(self.roll_dpi * self.roll_start_pad)
+        self.roll_end_pad_px = int(self.roll_dpi * self.roll_end_pad)
+        self.roll_margin_px = int(self.roll_dpi * self.roll_margin)
+        self.roll_width_px = int(self.roll_dpi * self.roll_width)
+        self.hole_width_px = int(self.roll_dpi * self.hole_width)
+        self.chain_perforation_gap_px = int(self.roll_dpi * self.chain_perforation_gap)
+
         self.control_change_map = [
-            {"controlChangeNo": 64, "midiNoteNo": 18},  # ControlChangeMap(64, 18)
+            {"controlChangeNo": 64, "midiNoteNo": 18},
 			{"controlChangeNo": 67, "midiNoteNo": 113},	
 		]
         self.hole_x_list = [self._get_hole_x(i) for i in range(128)]
@@ -27,25 +40,25 @@ class Midi2Image:
         self.draw = None
 
     def _get_hole_x(self, note_no):
-        return int(self.roll_margin + self.hole_0_center + ((note_no) * (self.hole_99_center - self.hole_0_center) / 99) - (self.hole_width / 2))
+        return int(self.roll_dpi * (self.roll_margin + self.leftest_hole_center + ((note_no) * (self.rightest_hole_center - self.leftest_hole_center) / (self.hole_num - 1)) - (self.hole_width / 2)))
 
     def get_tick_to_px(self, tick_len, tempo, bpm, ppq):
         return int((tick_len * self.roll_dpi * tempo * 1.2) / (bpm * ppq))
 
     def draw_hole(self, note_no, tempo, bpm, ppq, on_tick, off_tick):
-        hole_h = self.get_tick_to_px(off_tick - on_tick, tempo, bpm, ppq) - self.reduce_px
-        hole_h = max(hole_h, self.hole_width)
+        hole_h_px = self.get_tick_to_px(off_tick - on_tick, tempo, bpm, ppq) - self.reduce_px
+        hole_h_px = max(hole_h_px, self.hole_width_px)
         hole_x = self.hole_x_list[note_no - 15]
-        hole_y = self.out_img.height - self.get_tick_to_px(on_tick, tempo, bpm, ppq) - hole_h
+        hole_y = self.out_img.height - self.get_tick_to_px(on_tick, tempo, bpm, ppq) - hole_h_px - self.roll_start_pad_px
 
 		# Chain Perforation
         y = hole_y
-        while y < hole_y + hole_h - self.chain_perforation_th_len:
-            self.draw.ellipse([hole_x, y, hole_x + self.hole_width, y + self.hole_width], fill=255)
-            y += self.hole_y_margin + self.hole_width
+        while y < hole_y + hole_h_px - self.chain_perforation_th_len:
+            self.draw.ellipse([hole_x, y, hole_x + self.hole_width_px, y + self.hole_width_px], fill=255)
+            y += self.chain_perforation_gap_px + self.hole_width_px
 
         # Normal perforation
-        self.draw.rounded_rectangle([hole_x, y, hole_x + self.hole_width, hole_y + hole_h], radius=self.hole_width // 2, fill=255)
+        self.draw.rounded_rectangle([hole_x, y, hole_x + self.hole_width_px, hole_y + hole_h_px], radius=self.hole_width_px // 2, fill=255)
 
     def convert(self, midi_path, out_dir):
         mid = MidiFile(midi_path)
@@ -62,37 +75,33 @@ class Midi2Image:
                 abs_tick += msg.time
 
                 if msg.type == "set_tempo" and not initialized:
-                    tempo_micro = msg.tempo
-                    bpm = 60_000_000.0 / tempo_micro
+                    bpm = 60_000_000.0 / msg.tempo
                     if tempo == 0:
                         tempo = int(round(bpm))
                     print(f"Tempo event at tick {abs_tick}: {bpm:.2f} BPM")
 
-                    # 画像の初期化
-                    width = self.roll_width + 2 * self.roll_margin
+                    # create image
                     total_ticks = sum([t.time for t in track])
-                    img_h = self.get_tick_to_px(total_ticks, tempo, bpm, ppq)
-                    self.out_img = Image.new("L", (width, img_h), color=self.roll_color)
+                    img_h = self.get_tick_to_px(total_ticks, tempo, bpm, ppq) + self.roll_start_pad_px + self.roll_end_pad_px
+                    img_w = self.roll_width_px + 2 * self.roll_margin_px
+                    self.out_img = Image.new("L", (img_w, img_h), color=self.roll_color)
                     self.draw = ImageDraw.Draw(self.out_img)
-                    self.draw.rectangle([0, 0, self.roll_margin, img_h], fill=255)
-                    self.draw.rectangle([self.roll_margin + self.roll_width, 0, width, img_h], fill=255)
+                    self.draw.rectangle([0, 0, self.roll_margin_px, img_h], fill=255)
+                    self.draw.rectangle([self.roll_margin_px + self.roll_width_px, 0, img_w, img_h], fill=255)
                     initialized = True
 
                 if msg.type in ("note_on", "note_off", "control_change"):
-                    note = msg.note if hasattr(msg, "note") else msg.control
-                    velocity = msg.velocity if hasattr(msg, "velocity") else msg.value
-
                     for map in self.control_change_map:
-                        if msg.type == "control_change" and note == map.controlChangeNo:
-                            if velocity > 0:
+                        if msg.type == "control_change" and msg.control == map.controlChangeNo:
+                            if msg.value > 0:
                                 note_on_ticks[map.midiNoteNo] = abs_tick
                             else:
                                 self.draw_hole(map.midiNoteNo, tempo, bpm, ppq, note_on_ticks[map.midiNoteNo], abs_tick)
 
                     if msg.type == "note_on" and msg.velocity > 0:
-                        note_on_ticks[note] = abs_tick
-                    elif msg.type == "note_off" or  (msg.type == "note_on" and msg.velocity == 0):
-                        self.draw_hole(note, tempo, bpm, ppq, note_on_ticks[note], abs_tick)
+                        note_on_ticks[msg.note] = abs_tick
+                    elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
+                        self.draw_hole(msg.note, tempo, bpm, ppq, note_on_ticks[msg.note], abs_tick)
 
         if self.out_img:
             save_name = os.path.join(out_dir, os.path.basename(midi_path).replace(".mid", f" tempo{tempo}.png"))
