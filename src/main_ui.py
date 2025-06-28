@@ -68,7 +68,7 @@ class MainFrame():
         self.roll_viewer = RollViewer(self.parent, 900, 900, converter.out_img)
 
     def file_sel(self):
-        if path:= ctk.filedialog.askopenfilename(title="Select a MIDI file", filetypes=[("MIDI file", "*.mid;")]):
+        if path:= ctk.filedialog.askopenfilename(title="Select a MIDI file", filetypes=[("MIDI file", "*.mid")]):
             self.midi_file_path = path
             # change app title
             name = os.path.basename(self.midi_file_path)
@@ -82,7 +82,7 @@ class MainFrame():
 
         name = os.path.basename(self.midi_file_path)
         default_savename = os.path.splitext(name)[0] + f" tempo{self.tempo_slider.get()}.png"
-        if path:= ctk.filedialog.asksaveasfilename(title="Save Converted Image", initialfile=default_savename, filetypes=[("PNG file", "*.png;")]):
+        if path:= ctk.filedialog.asksaveasfilename(title="Save Converted Image", initialfile=default_savename, filetypes=[("PNG file", "*.png")]):
             dpi = int(self.roll_dpi.get())
             self.roll_viewer.image.save(path, dpi=(dpi, dpi))
 
