@@ -11,8 +11,6 @@ class Midi2Image:
         roll_dpi: int = 300,
         roll_tempo: int = 95,
         roll_accelerate_rate_ft: float = 0.002,  # 0.2% per feet from Stanford Univ paper. set 0% without acceleration.
-        roll_start_pad: float = 2,
-        roll_end_pad: float = 2,
         roll_margin: float = 0.25,
         roll_width: float = 11.25,
         hole_width: float = 0.07,
@@ -20,7 +18,9 @@ class Midi2Image:
         single_hole_max_len: float = 0.4,
         hole_0_center: float = 0.14,  # from left edge of the roll
         hole_99_center: float = 11.11,  # from left edge of the roll
-        shorten_hole_px: int = 10
+        shorten_hole_px: int = 10,
+        roll_start_pad: float = 2,
+        roll_end_pad: float = 2,
     ):
         self.roll_dpi = roll_dpi
         self.roll_tempo = roll_tempo

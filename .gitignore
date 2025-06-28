@@ -11,5 +11,12 @@ bin/
 .settings
 
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+
 *.mid
-*.png
+output/
+venv/
