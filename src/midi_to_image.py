@@ -1,7 +1,7 @@
 import os
 import time
 
-from mido import MidiFile
+import mido
 from PIL import Image, ImageDraw
 
 
@@ -19,12 +19,12 @@ class Midi2Image:
         self.roll_width = 11.25
         self.hole_width = 0.07
         self.chain_perforation_gap = 0.035
+        self.no_chain_perforation_len = 0.4  # This may change slightly
         self.leftest_hole_center = 0.14  # from left edge of the roll
         self.rightest_hole_center = self.roll_width - 0.14  # from right edge of the roll
         self.hole_num = 100
         self.roll_color= 120  # grayscale
         self.reduce_px = 10
-        self.no_chain_perforation_len = 0.4  # This may change slightly
 
         # in pixels
         self.roll_start_pad_px = int(self.roll_dpi * self.roll_start_pad)
@@ -40,8 +40,8 @@ class Midi2Image:
 			{"controlChangeNo": 67, "midiNoteNo": 113},	
 		]
         self.hole_x_list = [self._get_hole_x(i) for i in range(128)]
-        self.out_img = None
-        self.draw = None
+        self.out_img: Image.Image = None
+        self.draw: ImageDraw = None
 
     def get_roll_acceleration_rate(self, px: int) -> float:
         cur_feet = px / self.roll_dpi / 12.0
@@ -57,8 +57,6 @@ class Midi2Image:
         hole_h = self.get_tick_to_px(off_tick - on_tick, tempo, bpm, ppq) - self.reduce_px
         hole_h = max(hole_h, self.hole_width_px)
         hole_x = self.hole_x_list[note_no - 15]
-        # hole_y = self.out_img.height - self.get_tick_to_px(on_tick, tempo, bpm, ppq) - hole_h - self.roll_start_pad_px
-
         hole_y1 = self.get_tick_to_px(on_tick, tempo, bpm, ppq) + self.roll_start_pad_px
         hole_y2 = hole_y1 + hole_h
 
@@ -79,13 +77,16 @@ class Midi2Image:
         # Normal perforation
         self.draw.rounded_rectangle([hole_x, y, hole_x + self.hole_width_px, hole_y1], radius=self.hole_width_px // 2, fill=255)
 
-    def convert(self, midi_path, out_dir):
-        mid = MidiFile(midi_path)
+    def convert(self, midi_path) -> None:
+        mid = mido.MidiFile(midi_path)
         ppq = mid.ticks_per_beat
         bpm = 80.0
 
         note_on_ticks = [0] * 128
         initialized = False
+        total_ticks = 0
+        for track in mid.tracks: 
+            total_ticks = max(sum([t.time for t in track]), total_ticks)
 
         for track in mid.tracks:
             abs_tick = 0
@@ -97,8 +98,8 @@ class Midi2Image:
                     print(f"Tempo event at tick {abs_tick}: {bpm:.2f} BPM")
 
                     # create image
-                    total_ticks = sum([t.time for t in track])
                     img_h = self.get_tick_to_px(total_ticks, self.roll_tempo, bpm, ppq) + self.roll_start_pad_px + self.roll_end_pad_px
+                    print(bpm, ppq, total_ticks, img_h)
                     img_h = int(img_h * self.get_roll_acceleration_rate(img_h))
                     img_w = self.roll_width_px + 2 * self.roll_margin_px
                     self.out_img = Image.new("L", (img_w, img_h), color=self.roll_color)
@@ -120,11 +121,9 @@ class Midi2Image:
                     elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
                         self.draw_hole(msg.note, self.roll_tempo, bpm, ppq, note_on_ticks[msg.note], abs_tick)
 
-        if self.out_img:
-            save_name = os.path.join(out_dir, os.path.basename(midi_path).replace(".mid", f" tempo{self.roll_tempo}.png"))
-            os.makedirs(os.path.dirname(save_name), exist_ok=True)
-            self.out_img.save(save_name)
-            print(f"Saved image to {save_name}")
+
+    def saveimg(self, savepath: str) -> None:
+        self.out_img.save(savepath)
 
 if __name__ == "__main__":
     input_dir = "C:\\Users\\sasaki\\Downloads\\Ampico_All_erolls\\test\\"
@@ -134,5 +133,10 @@ if __name__ == "__main__":
             path = os.path.join(input_dir, filename)
             t1 = time.time()
             m2i = Midi2Image()
-            m2i.convert(path, output_dir)
+            m2i.convert(path)
+            save_path = os.path.join(output_dir, os.path.basename(filename).replace(".mid", f" tempo{m2i.roll_tempo}.png"))
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            m2i.saveimg(save_path)
+
+            print(f"Saved image to {save_path}")
             print(time.time() - t1, "sec")
