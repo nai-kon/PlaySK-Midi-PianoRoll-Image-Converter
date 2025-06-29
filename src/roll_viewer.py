@@ -10,7 +10,7 @@ class RollViewer():
 
         self.scrollbar = ctk.CTkScrollbar(parent, orientation="vertical", command=self.on_scrollbar)
         self.scrollbar.grid(row=0, column=2, sticky="ns")
-        self.image_label = ctk.CTkLabel(parent, image="", text="")
+        self.image_label = ctk.CTkLabel(parent, text="")
         self.image_label.grid(row=0, column=1, sticky="nsew")
 
         self.set_image(image)

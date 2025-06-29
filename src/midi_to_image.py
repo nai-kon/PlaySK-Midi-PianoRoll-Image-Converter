@@ -17,7 +17,7 @@ class Midi2Image:
         chain_hole_spacing: float = 0.035,
         single_hole_max_len: float = 0.4,
         hole_0_center: float = 0.14,  # from left edge of the roll
-        hole_99_center: float = 11.11,  # from left edge of the roll
+        hole_99_center: float = 0.14,  # from left edge of the roll
         shorten_hole_px: int = 10,
         roll_start_pad: float = 2,
         roll_end_pad: float = 2,
@@ -35,7 +35,7 @@ class Midi2Image:
         self.chain_hole_spacing = chain_hole_spacing
         self.single_hole_max_len = single_hole_max_len
         self.hole_0_center = hole_0_center
-        self.hole_99_center = hole_99_center
+        self.hole_99_center = roll_width - hole_99_center
         self.hole_num = 100
         self.roll_color = 120  # in grayscale
 
