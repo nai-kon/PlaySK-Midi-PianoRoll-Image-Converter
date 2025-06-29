@@ -7,36 +7,15 @@ class RollViewer():
     def __init__(self, parent, width, height, image: Image.Image):
         self.view_width = width
         self.view_height = height
-        
-        scrollbar_w = 16
 
-        # load image
-        self.image = image
-        self.img_w, self.img_h = self.image.size
-        self.resize_ratio = self.view_width / self.img_w
-        self.resize_img_h = int(self.img_h * self.resize_ratio)
-
-        # スクロールバー（縦）
-        self.offset_y = 0
-        self.scrollbar = ctk.CTkScrollbar(parent, width=scrollbar_w, orientation="vertical", command=self.on_scrollbar)
+        self.scrollbar = ctk.CTkScrollbar(parent, orientation="vertical", command=self.on_scrollbar)
         self.scrollbar.grid(row=0, column=2, sticky="ns")
-
-        # initial crop
-        cropped = self.image.crop((0, 0, self.img_w, int(self.view_height / self.resize_ratio)))
-        cropped = cropped.resize((self.view_width, self.view_height))
-        tk_image = ctk.CTkImage(light_image=cropped, size=(self.view_width, self.view_height))
-
-        # 画像ラベル
-        self.image_label = ctk.CTkLabel(parent, image=tk_image, text="")
+        self.image_label = ctk.CTkLabel(parent, image="", text="")
         self.image_label.grid(row=0, column=1, sticky="nsew")
 
-        # スクロールバーの初期値設定
-        self.update_scrollbar()
+        self.set_image(image)
 
-        # リサイズイベント検出
         self.image_label.bind("<Configure>", self.on_resize)
-
-        # マウスホイールでスクロール
         self.image_label.bind("<MouseWheel>", self.on_mousewheel)
    
     def on_resize(self, event):
@@ -44,10 +23,25 @@ class RollViewer():
         if view_height != self.view_height:
             # ウィンドウの高さが変わったときに画像を更新
             self.view_height = view_height
-            self.update_image()
+            self.draw()
             self.update_scrollbar()
+    
+    def set_image(self, image: Image.Image):
+        self.offset_y = 0
+        self.image = image
+        self.img_w, self.img_h = self.image.size
+        self.resize_ratio = self.view_width / self.img_w
+        self.resize_img_h = int(self.img_h * self.resize_ratio)
 
-    def update_image(self):
+        # set initial frame
+        cropped = self.image.crop((0, 0, self.img_w, int(self.view_height / self.resize_ratio)))
+        cropped = cropped.resize((self.view_width, self.view_height))
+        tk_image = ctk.CTkImage(light_image=cropped, size=(self.view_width, self.view_height))
+        self.image_label.configure(image=tk_image)
+
+        self.update_scrollbar()
+
+    def draw(self):
         offset_y_org = int(self.offset_y / self.resize_ratio)
         box = (0, offset_y_org, self.img_w, offset_y_org + int(self.view_height / self.resize_ratio))
         cropped = self.image.crop(box)
@@ -66,7 +60,7 @@ class RollViewer():
     def on_mousewheel(self, event):
         self.offset_y -= event.delta
         self.clamp_offset()
-        self.update_image()
+        self.draw()
         self.update_scrollbar()
 
     def on_scrollbar(self, *args):
@@ -77,5 +71,5 @@ class RollViewer():
             self.offset_y += lines * 30
         
         self.clamp_offset()
-        self.update_image()
+        self.draw()
         self.update_scrollbar()

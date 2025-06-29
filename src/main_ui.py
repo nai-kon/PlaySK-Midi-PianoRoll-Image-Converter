@@ -1,7 +1,9 @@
 import os
 
 import customtkinter as ctk
+from CTkMessagebox import CTkMessagebox
 from PIL import Image
+from tkinterdnd2 import DND_ALL, TkinterDnD
 
 from midi_to_image import Midi2Image
 from roll_viewer import RollViewer
@@ -31,6 +33,14 @@ def MyCTkIntInput(parent):
 
     validate_cmd = parent.register(validate_int_input)
     return ctk.CTkEntry(parent, validate="key", validatecommand=(validate_cmd, "%P"))
+
+# For Drag&Drop File Support
+# https://stackoverflow.com/a/75527642
+class Tk(ctk.CTk, TkinterDnD.DnDWrapper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.TkdndVersion = TkinterDnD._require(self)
+
 
 class MainFrame():
     def __init__(self, parent) -> None:
@@ -65,16 +75,30 @@ class MainFrame():
             # float(self.roll_end_pad.get()),
         )
         converter.convert(self.midi_file_path)
-        self.roll_viewer = RollViewer(self.parent, 900, 900, converter.out_img)
+        if isinstance(self.roll_viewer, RollViewer):
+            self.roll_viewer.set_image(converter.out_img)
+        else:
+            self.roll_viewer = RollViewer(self.parent, 900, 900, converter.out_img)
+    
+    def _open_file(self, path):
+        print(path)
+        self.midi_file_path = path
+        # change app title
+        name = os.path.basename(self.midi_file_path)
+        self.parent.title(APP_TITLE + " - " + name)
+        self.convert() 
 
     def file_sel(self):
         if path:= ctk.filedialog.askopenfilename(title="Select a MIDI file", filetypes=[("MIDI file", "*.mid")]):
-            self.midi_file_path = path
-            # change app title
-            name = os.path.basename(self.midi_file_path)
-            self.parent.title(APP_TITLE + " - " + name)
-            
-            self.convert() 
+            self._open_file(path)
+
+    def drop_file(self, event):
+        paths: tuple[str] = self.parent.tk.splitlist(event.data)  # parse filepath list
+        path = paths[0]  # only one file is supported
+        if not path.endswith(".mid"):
+            CTkMessagebox(icon="icons/warning_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png", title="Unsupported File", message="Not MIDI file")
+        else:
+            self._open_file(path)
 
     def save_image(self):
         if self.midi_file_path is None:
@@ -184,7 +208,7 @@ class MainFrame():
         dark_mode_btn.grid(row=32, column=0, padx=10, sticky="sw")
 
 if __name__ == "__main__":
-    app = ctk.CTk()
+    app = Tk()
     app.title(APP_TITLE)
     app.geometry("1200x900")
     app.iconbitmap("icons/PlaySK_icon.ico")
@@ -192,7 +216,11 @@ if __name__ == "__main__":
     app.grid_columnconfigure(1, weight=10)
     app.grid_rowconfigure(0, weight=1)
 
-    MainFrame(app)
+    mainframe = MainFrame(app)
+
+    app.drop_target_register(DND_ALL)
+    app.dnd_bind("<<Drop>>", lambda e: mainframe.drop_file(e))
+
     
 
     app.mainloop()
