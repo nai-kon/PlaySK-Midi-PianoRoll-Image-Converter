@@ -6,9 +6,10 @@ from PIL import Image
 from tkinterdnd2 import DND_ALL, TkinterDnD
 
 from config import ConfigMng
+from const import APP_TITLE
 from midi_to_image import Midi2Image
 from roll_viewer import RollViewer
-from version import APP_TITLE
+from update_checker import NotifyUpdate
 from welcome_message import WelcomMessage
 
 
@@ -53,6 +54,9 @@ class MainFrame():
         self.midi_file_path = None
         self.change_dark_light_mode(change_state=False)
 
+        # update check
+        NotifyUpdate.check(self.conf)
+    
     def on_close(self, root):
         # save configs
         # self.conf.dark_mode  (already synchro)
@@ -112,8 +116,9 @@ class MainFrame():
         self.convert() 
 
     def file_sel(self):
-        if path:= ctk.filedialog.askopenfilename(title="Select a MIDI file", filetypes=[("MIDI file", "*.mid")]):
+        if path:= ctk.filedialog.askopenfilename(title="Select a MIDI file", filetypes=[("MIDI file", "*.mid")], initialdir=self.conf.input_dir):
             self._open_file(path)
+            self.conf.input_dir = os.path.dirname(path)
 
     def drop_file(self, event):
         paths: tuple[str] = self.parent.tk.splitlist(event.data)  # parse filepath list
@@ -129,12 +134,13 @@ class MainFrame():
 
         name = os.path.basename(self.midi_file_path)
         default_savename = os.path.splitext(name)[0] + f" tempo{self.tempo_slider.get():.0f}.png"
-        if path:= ctk.filedialog.asksaveasfilename(title="Save Converted Image", initialfile=default_savename, filetypes=[("PNG file", "*.png")]):
+        if path:= ctk.filedialog.asksaveasfilename(title="Save Converted Image", initialfile=default_savename, filetypes=[("PNG file", "*.png")], initialdir=self.conf.output_dir):
             dpi = int(self.roll_dpi.get())
             self.main_view.image.save(path, dpi=(dpi, dpi))
+            self.conf.output_dir = os.path.dirname(path)
 
     def create_sidebar(self):
-        sidebar = ctk.CTkFrame(self.parent, corner_radius=0)
+        sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#EEEEEE", "#111111"))
         sidebar.grid(row=0, column=0, sticky="nsew")
 
         btnimg = ctk.CTkImage(Image.open("assets/folder_open_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
@@ -211,7 +217,7 @@ class MainFrame():
         self.compensate_accel = ctk.CTkSwitch(sidebar, text="Compensate Acceleration")
         if self.conf.compensate_accel:
             self.compensate_accel.select()
-        self.compensate_accel.pack(padx=10, anchor="w")
+        self.compensate_accel.pack(padx=10, pady=(10, 0), anchor="w")
 
         self.acceleration_rate_label = ctk.CTkLabel(sidebar, text="Acceleration rate (%/feet)")
         self.acceleration_rate_label.pack(padx=25, anchor="w")
@@ -230,7 +236,7 @@ class MainFrame():
         btnimg = ctk.CTkImage(light_image=Image.open("assets/dark_mode_256dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.png"),
                                         dark_image=Image.open("assets/light_mode_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
         dark_mode_btn = ctk.CTkButton(sidebar, text="", width=20, fg_color="transparent", hover_color=("gray70", "gray30"), image=btnimg, command=self.change_dark_light_mode)
-        dark_mode_btn.pack(padx=5, anchor="w")
+        dark_mode_btn.pack(padx=5, anchor="sw")
 
 if __name__ == "__main__":
     app = Tk()

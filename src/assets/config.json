@@ -1,5 +1,7 @@
 {
     "dark_mode": true,
+    "input_dir": "",
+    "output_dir": "",
     "tracker": "88-Note",
     "tempo": 80,
     "dpi": 300,
@@ -12,5 +14,6 @@
     "chain_perf_spacing": 0.035,
     "shorten_len": 10,
     "compensate_accel": true,
-    "accel_rate": 0.2
+    "accel_rate": 0.2,
+    "update_notified_version": "1.0.0"
 }

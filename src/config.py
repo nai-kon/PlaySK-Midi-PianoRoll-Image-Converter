@@ -7,6 +7,8 @@ CONFIG_PATH = os.path.join("assets", "config.json")
 
 class ConfigMng(BaseModel):
     dark_mode: bool =  True
+    input_dir: str = ""
+    output_dir: str = ""
     tracker: str = "88-Note"
     tempo: int = 80
     dpi: int = 300
@@ -20,6 +22,7 @@ class ConfigMng(BaseModel):
     shorten_len: int = 10
     compensate_accel: bool = True
     accel_rate: float = 0.2
+    update_notified_version: str = ""
     
     def __init__(self):
         try:
