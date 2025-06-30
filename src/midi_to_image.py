@@ -96,7 +96,7 @@ class Midi2Image:
         ppq = mid.ticks_per_beat
         bpm = 80.0
 
-        note_on_ticks = [0] * 128
+        note_on_ticks: list[int | None] = [0] * 128
         initialized = False
         total_ticks = 0
         for track in mid.tracks:
@@ -127,8 +127,9 @@ class Midi2Image:
                         if msg.type == "control_change" and msg.control == map["controlChangeNo"]:
                             if msg.value > 0:
                                 note_on_ticks[map["midiNoteNo"]] = abs_tick
-                            else:
+                            elif note_on_ticks[map["midiNoteNo"]] is not None:
                                 self.draw_hole(map["midiNoteNo"], self.roll_tempo, bpm, ppq, note_on_ticks[map["midiNoteNo"]], abs_tick)
+                                note_on_ticks[map["midiNoteNo"]] = None  # some midi has error, msg.value=0 multiple time. So, ignore it.
 
                     if msg.type == "note_on" and msg.velocity > 0:
                         note_on_ticks[msg.note] = abs_tick
