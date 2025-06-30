@@ -2,7 +2,7 @@ import os
 
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
-from PIL import Image
+from PIL import Image, ImageTk
 from tkinterdnd2 import DND_ALL, TkinterDnD
 
 from config import ConfigMng
@@ -106,7 +106,7 @@ class MainFrame():
             self.main_view.set_image(converter.out_img)
         else:
             self.main_view = RollViewer(self.parent, 900, 900, converter.out_img)
-    
+
     def _open_file(self, path):
         print(path)
         self.midi_file_path = path
@@ -242,9 +242,10 @@ if __name__ == "__main__":
     app = Tk()
     app.title(APP_TITLE)
     app.geometry("1200x900")
-    app.iconbitmap("assets/PlaySK_icon.ico")
+    app.wm_iconbitmap()
+    app.iconphoto(False, ImageTk.PhotoImage(file="assets/PlaySK_icon.ico"))
     app.grid_columnconfigure(0, weight=0)  # Sidebar
-    app.grid_columnconfigure(1, weight=10)
+    app.grid_columnconfigure(1, weight=10)  # Main view
     app.grid_rowconfigure(0, weight=1)
 
     mainframe = MainFrame(app)
