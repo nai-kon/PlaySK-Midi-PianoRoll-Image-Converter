@@ -5,13 +5,15 @@ Image.MAX_IMAGE_PIXELS = 10000000000
 
 class RollViewer():
     def __init__(self, parent, width, height, image: Image.Image):
-        self.view_width = width
-        self.view_height = height
-
         self.scrollbar = ctk.CTkScrollbar(parent, orientation="vertical", command=self.on_scrollbar)
         self.scrollbar.grid(row=0, column=2, sticky="ns")
         self.image_label = ctk.CTkLabel(parent, text="")
+        self.orig_scaling_ratio = self.image_label._get_widget_scaling()
+        self.image_label._set_scaling(new_window_scaling=1.0, new_widget_scaling=1.0)  # disable scaling on image.
         self.image_label.grid(row=0, column=1, sticky="nsew")
+        
+        self.view_width = int(width * self.orig_scaling_ratio)
+        self.view_height = int(height * self.orig_scaling_ratio)
 
         self.set_image(image)
 
@@ -19,7 +21,7 @@ class RollViewer():
         self.image_label.bind("<MouseWheel>", self.on_mousewheel)
    
     def on_resize(self, event):
-        view_height = int(event.height / 2)  # 要DPI SCALE FACTOR
+        view_height = event.height
         if view_height != self.view_height:
             # ウィンドウの高さが変わったときに画像を更新
             self.view_height = view_height
@@ -58,7 +60,7 @@ class RollViewer():
         self.scrollbar.set(top, bottom)
 
     def on_mousewheel(self, event):
-        self.offset_y -= event.delta
+        self.offset_y -= event.delta * self.orig_scaling_ratio
         self.clamp_offset()
         self.draw()
         self.update_scrollbar()
