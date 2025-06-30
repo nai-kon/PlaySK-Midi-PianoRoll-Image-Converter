@@ -140,7 +140,7 @@ class MainFrame():
             self.conf.output_dir = os.path.dirname(path)
 
     def create_sidebar(self):
-        sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#EEEEEE", "#111111"))
+        sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         sidebar.grid(row=0, column=0, sticky="nsew")
 
         btnimg = ctk.CTkImage(Image.open("assets/folder_open_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
