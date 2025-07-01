@@ -54,7 +54,7 @@ jobs:
 
     - name: Windows x64, collect release files
       if: startsWith( matrix.os , 'windows' )
-      run: Compress-Archive -Path "dist/PlaySK Midi to Piano Roll Image Converter/*","sample_scans/" -DestinationPath ${{ matrix.zip_name }}
+      run: Compress-Archive -Path "dist/PlaySK Midi to Piano Roll Image Converter/*" -DestinationPath ${{ matrix.zip_name }}
 
     # - name: Mac arm/x64, codesign app
     #   if: startsWith( matrix.os, 'mac' )
