@@ -152,7 +152,7 @@ class MainFrame():
         self.fileopen.pack(padx=10, pady=(10, 0), anchor="w", fill="both")
 
         ctk.CTkLabel(sidebar, text="Tracker Bar").pack(padx=10, anchor="w")
-        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=["88-Note", ""])
+        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=["88-Note"])
         self.tracker_bar.set(self.conf.tracker)
         self.tracker_bar.pack(padx=10, anchor="w", fill="both")
 
