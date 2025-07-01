@@ -54,8 +54,8 @@ class Midi2Image:
             {"controlChangeNo": 67, "midiNoteNo": 113},
         ]
         self.hole_x_list = [self._get_hole_x(i) for i in range(128)]
-        self.out_img = None
-        self.draw = None
+        self.out_img: Image.Image | None = None
+        self.draw: ImageDraw | None = None
 
     def get_roll_acceleration_rate(self, px: int) -> float:
         cur_feet = px / self.roll_dpi / 12.0
@@ -91,53 +91,61 @@ class Midi2Image:
         # Normal perforation
         self.draw.rounded_rectangle([hole_x, y, hole_x + self.hole_width_px, hole_y1], radius=self.hole_width_px // 2, fill=255)
 
-    def convert(self, midi_path) -> None:
-        mid = mido.MidiFile(midi_path)
-        ppq = mid.ticks_per_beat
-        bpm = 80.0
+    def convert(self, midi_path: str) -> bool:
+        try:
+            mid = mido.MidiFile(midi_path)
+            ppq = mid.ticks_per_beat
+            bpm = 80.0
 
-        note_on_ticks: list[int | None] = [0] * 128
-        initialized = False
-        total_ticks = 0
-        for track in mid.tracks:
-            total_ticks = max(sum([t.time for t in track]), total_ticks)
+            note_on_ticks: list[int | None] = [0] * 128
+            initialized = False
+            total_ticks = 0
+            for track in mid.tracks:
+                total_ticks = max(sum([t.time for t in track]), total_ticks)
 
-        for track in mid.tracks:
-            abs_tick = 0
-            for msg in track:
-                abs_tick += msg.time
+            for track in mid.tracks:
+                abs_tick = 0
+                for msg in track:
+                    abs_tick += msg.time
 
-                if msg.type == "set_tempo" and not initialized:
-                    bpm = 60_000_000.0 / msg.tempo
-                    print(f"Tempo event at tick {abs_tick}: {bpm:.2f} BPM")
+                    if msg.type == "set_tempo" and not initialized:
+                        bpm = 60_000_000.0 / msg.tempo
+                        print(f"Tempo event at tick {abs_tick}: {bpm:.2f} BPM")
 
-                    # create image
-                    img_h = self.get_tick_to_px(total_ticks, self.roll_tempo, bpm, ppq) + self.roll_start_pad_px + self.roll_end_pad_px
-                    print(bpm, ppq, total_ticks, img_h)
-                    img_h = int(img_h * self.get_roll_acceleration_rate(img_h))
-                    img_w = self.roll_width_px + 2 * self.roll_margin_px
-                    self.out_img = Image.new("L", (img_w, img_h), color=self.roll_color)
-                    self.draw = ImageDraw.Draw(self.out_img)
-                    self.draw.rectangle([0, 0, self.roll_margin_px, img_h], fill=255)
-                    self.draw.rectangle([self.roll_margin_px + self.roll_width_px, 0, img_w, img_h], fill=255)
-                    initialized = True
+                        # create image
+                        img_h = self.get_tick_to_px(total_ticks, self.roll_tempo, bpm, ppq) + self.roll_start_pad_px + self.roll_end_pad_px
+                        print(bpm, ppq, total_ticks, img_h)
+                        img_h = int(img_h * self.get_roll_acceleration_rate(img_h))
+                        img_w = self.roll_width_px + 2 * self.roll_margin_px
+                        self.out_img = Image.new("L", (img_w, img_h), color=self.roll_color)
+                        self.draw = ImageDraw.Draw(self.out_img)
+                        self.draw.rectangle([0, 0, self.roll_margin_px, img_h], fill=255)
+                        self.draw.rectangle([self.roll_margin_px + self.roll_width_px, 0, img_w, img_h], fill=255)
+                        initialized = True
 
-                if msg.type in ("note_on", "note_off", "control_change"):
-                    for map in self.control_change_map:
-                        if msg.type == "control_change" and msg.control == map["controlChangeNo"]:
-                            if msg.value > 0:
-                                note_on_ticks[map["midiNoteNo"]] = abs_tick
-                            elif note_on_ticks[map["midiNoteNo"]] is not None:
-                                self.draw_hole(map["midiNoteNo"], self.roll_tempo, bpm, ppq, note_on_ticks[map["midiNoteNo"]], abs_tick)
-                                note_on_ticks[map["midiNoteNo"]] = None  # some midi has error, msg.value=0 multiple time. So, ignore it.
+                    if msg.type in ("note_on", "note_off", "control_change"):
+                        for map in self.control_change_map:
+                            if msg.type == "control_change" and msg.control == map["controlChangeNo"]:
+                                if msg.value > 0:
+                                    note_on_ticks[map["midiNoteNo"]] = abs_tick
+                                elif note_on_ticks[map["midiNoteNo"]] is not None:
+                                    self.draw_hole(map["midiNoteNo"], self.roll_tempo, bpm, ppq, note_on_ticks[map["midiNoteNo"]], abs_tick)
+                                    note_on_ticks[map["midiNoteNo"]] = None  # some midi has error, msg.value=0 multiple time. So, ignore it.
 
-                    if msg.type == "note_on" and msg.velocity > 0:
-                        note_on_ticks[msg.note] = abs_tick
-                    elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
-                        self.draw_hole(msg.note, self.roll_tempo, bpm, ppq, note_on_ticks[msg.note], abs_tick)
+                        if msg.type == "note_on" and msg.velocity > 0:
+                            note_on_ticks[msg.note] = abs_tick
+                        elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
+                            self.draw_hole(msg.note, self.roll_tempo, bpm, ppq, note_on_ticks[msg.note], abs_tick)
 
+        except Exception as e:
+            print(e)
+            return False
+
+        return True
+            
     def saveimg(self, savepath: str) -> None:
-        self.out_img.save(savepath)
+        if self.out_img is not None:
+            self.out_img.save(savepath)
 
 
 if __name__ == "__main__":

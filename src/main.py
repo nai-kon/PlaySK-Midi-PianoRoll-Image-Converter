@@ -101,7 +101,11 @@ class MainFrame():
             # float(self.roll_start_pad.get()),
             # float(self.roll_end_pad.get()),
         )
-        converter.convert(self.midi_file_path)
+        res = converter.convert(self.midi_file_path)
+        if not res:
+            CTkMessagebox(icon="assets/warning_256dp_4B77D1_FILL0_wght400_GRAD0_opsz48.png", title="Conversion Error", message="Conversion Error happened")
+            return
+
         if isinstance(self.main_view, RollViewer):
             self.main_view.set_image(converter.out_img)
         else:
@@ -124,7 +128,7 @@ class MainFrame():
         paths: tuple[str] = self.parent.tk.splitlist(event.data)  # parse filepath list
         path = paths[0]  # only one file is supported
         if not path.endswith(".mid"):
-            CTkMessagebox(icon="assets/warning_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png", title="Unsupported File", message="Not MIDI file")
+            CTkMessagebox(icon="assets/warning_256dp_4B77D1_FILL0_wght400_GRAD0_opsz48.png", title="Unsupported File", message="Not MIDI file")
         else:
             self._open_file(path)
 
@@ -145,10 +149,10 @@ class MainFrame():
 
         btnimg = ctk.CTkImage(Image.open("assets/folder_open_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
         self.fileopen = ctk.CTkButton(sidebar, text="Open & Convert MIDI", image=btnimg, command=self.file_sel)
-        self.fileopen.pack(padx=10, pady=(30, 0), anchor="w", fill="both")
+        self.fileopen.pack(padx=10, pady=(10, 0), anchor="w", fill="both")
 
         ctk.CTkLabel(sidebar, text="Tracker Bar").pack(padx=10, anchor="w")
-        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=["88-Note", "Ampico A/B", "Duo-Art"])
+        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=["88-Note", ""])
         self.tracker_bar.set(self.conf.tracker)
         self.tracker_bar.pack(padx=10, anchor="w", fill="both")
 

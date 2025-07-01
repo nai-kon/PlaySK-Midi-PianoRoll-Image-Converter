@@ -22,7 +22,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='PlaySK Midi to Roll Image Converter',
+    name='PlaySK Midi to Piano Roll Image Converter',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -43,5 +43,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='PlaySK Midi to Roll Image Converter',
+    name='PlaySK Midi to Piano Roll Image Converter',
 )
