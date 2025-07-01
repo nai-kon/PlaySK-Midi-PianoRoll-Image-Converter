@@ -25,13 +25,13 @@ jobs:
         include: 
           - os: windows-latest
             build_cmd: ./build_win.bat
-            zip_name: PlaySK-PianoRoll-Reader-Win.x64.zip
+            zip_name: PlaySK-Midi-to-Piano-Roll-Image-Converter-Win.x64.zip
           # - os: macos-13
           #   build_cmd: bash build_mac.sh
-          #   zip_name: PlaySK-PianoRoll-Reader-Mac.x64.zip
+          #   zip_name: PlaySK-Midi-to-Piano-Roll-Image-Converter-Mac.x64.zip
           # - os: macos-14
           #   build_cmd: bash build_mac.sh
-          #   zip_name: PlaySK-PianoRoll-Reader-Mac.ARM.zip
+          #   zip_name: PlaySK-Midi-to-Piano-Roll-Image-Converter-Mac.ARM.zip
 
     runs-on: ${{ matrix.os }}
     steps:

@@ -1,4 +1,4 @@
-# PlaySK Midi to Piano Roll Image Converter Ver1.0 beta
+# PlaySK MIDI to Piano Roll Image Converter Ver1.0 beta
 
 Converts MIDI file to piano roll image.
 ![Overall System](System_Overview.png)
