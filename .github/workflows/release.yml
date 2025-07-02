@@ -81,7 +81,7 @@ jobs:
       run: |
         pushd dist
         mkdir to_notarize
-        mv "PlaySK Midi to Piano Roll Image Converter.app" assets to_notarize/
+        mv "PlaySK Midi to Piano Roll Image Converter.app" playsk_midi_to_roll_image_converter_assets to_notarize/
         ditto -c -k -rsrc --keepParent to_notarize archive.zip
         xcrun notarytool store-credentials "notary_profile" --apple-id "$NOTARY_APPLE_ID" --team-id "$NOTARY_TEAM_ID" --password "$NOTARY_PW"
         xcrun notarytool submit archive.zip --keychain-profile "notary_profile" --wait
@@ -95,7 +95,7 @@ jobs:
         pushd dist
         brew install create-dmg
         test -f PlaySK-Installer.dmg && rm PlaySK-Installer.dmg
-        create-dmg --volname "PlaySK Installer" --background assets/dmg-bg.tiff --window-pos 200 120 --window-size 800 500 --icon-size 100 --icon "PlaySK Midi to Piano Roll Image Converter.app" 100 100 --add-file "assets" assets 100 300 --hide-extension "PlaySK Midi to Piano Roll Image Converter.app" --app-drop-link 600 200 "PlaySK-Installer.dmg" "PlaySK Midi to Piano Roll Image Converter.app"
+        create-dmg --volname "PlaySK Installer" --background playsk_midi_to_roll_image_converter_assets/dmg-bg.tiff --window-pos 200 120 --window-size 800 500 --icon-size 100 --icon "PlaySK Midi to Piano Roll Image Converter.app" 100 100 --add-file "playsk_midi_to_roll_image_converter_assets" playsk_midi_to_roll_image_converter_assets 100 300 --hide-extension "PlaySK Midi to Piano Roll Image Converter.app" --app-drop-link 600 200 "PlaySK-Installer.dmg" "PlaySK Midi to Piano Roll Image Converter.app"
         popd
         mv dist/PlaySK-Installer.dmg dist/3rd-party-license.txt .
         zip -qr ${{ matrix.zip_name }} PlaySK-Installer.dmg "3rd-party-license.txt"
