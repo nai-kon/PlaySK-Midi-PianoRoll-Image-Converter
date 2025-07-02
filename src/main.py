@@ -79,6 +79,8 @@ class MainFrame():
             self.main_view.set_image(converter.out_img)
         else:
             self.main_view = RollViewer(self.parent, 900, 900, converter.out_img)
+        
+        self.info_btn.pack(anchor="sw", side="left")
 
     def _open_file(self, path):
         print(path)
@@ -111,6 +113,22 @@ class MainFrame():
             dpi = int(self.roll_dpi.get())
             self.main_view.image.save(path, dpi=(dpi, dpi))
             self.conf.output_dir = os.path.dirname(path)
+
+    def show_image_info(self):
+        # show converted image info
+        img_w, img_h = self.main_view.image.size
+        dpi = int(self.roll_dpi.get())
+        length = img_h / dpi / 12  # feet
+
+        msgbox = ctk.CTkToplevel()
+        msgbox.geometry("400x120")
+        msgbox.title("Image Information")
+        msgbox.grab_set()
+
+        font = ctk.CTkFont(size=15)
+        ctk.CTkLabel(msgbox, text=f"Image Width: {img_w} px", font=font).pack(padx=10, pady=5, anchor="w")
+        ctk.CTkLabel(msgbox, text=f"Image Height: {img_h} px ", font=font).pack(padx=10, pady=5, anchor="w")
+        ctk.CTkLabel(msgbox, text=f"Image Length: {length:.2f} feet @{dpi}DPI", font=font).pack(padx=10, pady=5, anchor="w")
 
     def create_sidebar(self):
         sidebar = CustomScrollableFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
@@ -210,9 +228,21 @@ class MainFrame():
         btnimg = ctk.CTkImage(light_image=Image.open("assets/dark_mode_256dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.png"),
                                         dark_image=Image.open("assets/light_mode_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
         dark_mode_btn = ctk.CTkButton(sidebar, text="", width=20, fg_color="transparent", hover_color=("gray70", "gray30"), image=btnimg, command=self.change_dark_light_mode)
-        dark_mode_btn.pack(padx=5, anchor="sw")
+        dark_mode_btn.pack(anchor="sw", side="left")
+
+        btnimg = ctk.CTkImage(light_image=Image.open("assets/info_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"),
+                                        dark_image=Image.open("assets/info_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
+        self.info_btn = ctk.CTkButton(sidebar, text="", width=20, fg_color="transparent", hover_color=("gray70", "gray30"), image=btnimg, command=self.show_image_info)
+        # dark_mode_btn.pack_forget()
+
 
 if __name__ == "__main__":
+    import sys
+    if sys.platform == "darwin" and getattr(sys, 'frozen', False):
+        # change current directory for mac binary
+        path = sys.argv[0].rsplit("PlaySK Midi to Piano Roll Image Converter.app")[0]
+        os.chdir(path)
+
     app = MyTk()
     app.title(APP_TITLE)
     app.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
