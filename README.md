@@ -4,7 +4,7 @@ Converts MIDI file to piano roll image.
 ![Overall System](System_Overview.png)
 
 The converted image can be played on [PlaySK Piano Roll Reader](https://github.com/nai-kon/PlaySK-Piano-Roll-Reader).
-Also the converted image might be able to convert to G-Code by 3rd party software. This allows cut piano rolls using Laser Perforator. (My goal is to be able to output G-Code directly with this software)
+Also the converted image might be converted to G-Code for laser perforator, using standard software. (My goal is to be able to output G-Code directly)
 
 
 # Support Tracker Bar

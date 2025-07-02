@@ -6,36 +6,13 @@ from PIL import Image, ImageTk
 from tkinterdnd2 import DND_ALL, TkinterDnD
 
 from config import ConfigMng
-from const import APP_TITLE
+from const import APP_HEIGHT, APP_TITLE, APP_WIDTH
+from custom_widgets import MyCTkFloatInput, MyCTkIntInput, MyScrollableFrame
 from midi_to_image import Midi2Image
 from roll_viewer import RollViewer
 from update_checker import NotifyUpdate
 from welcome_message import WelcomMessage
 
-
-def MyCTkFloatInput(parent):
-    def validate_float_input(value):
-        try:
-            if value != "":  # Allow empty input
-                float(value)  # Try to convert to float
-            return True
-        except ValueError:
-            return False
-
-    validate_cmd = parent.register(validate_float_input)
-    return ctk.CTkEntry(parent, validate="key", validatecommand=(validate_cmd, "%P"))
-
-def MyCTkIntInput(parent):
-    def validate_int_input(value):
-        try:
-            if value != "":  # Allow empty input
-                int(value)  # Try to convert to int
-            return True
-        except ValueError:
-            return False
-
-    validate_cmd = parent.register(validate_int_input)
-    return ctk.CTkEntry(parent, validate="key", validatecommand=(validate_cmd, "%P"))
 
 # For Drag&Drop File Support
 # https://stackoverflow.com/a/75527642
@@ -144,7 +121,8 @@ class MainFrame():
             self.conf.output_dir = os.path.dirname(path)
 
     def create_sidebar(self):
-        sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
+        sidebar = MyScrollableFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
+        # sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         sidebar.grid(row=0, column=0, sticky="nsew")
 
         btnimg = ctk.CTkImage(Image.open("assets/folder_open_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
@@ -245,10 +223,10 @@ class MainFrame():
 if __name__ == "__main__":
     app = Tk()
     app.title(APP_TITLE)
-    app.geometry("1200x900")
+    app.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
     app.wm_iconbitmap()
     app.iconphoto(False, ImageTk.PhotoImage(file="assets/PlaySK_icon.ico"))
-    app.grid_columnconfigure(0, weight=0)  # Sidebar
+    app.grid_columnconfigure(0, weight=0)  # sidebar
     app.grid_columnconfigure(1, weight=10)  # Main view
     app.grid_rowconfigure(0, weight=1)
 
