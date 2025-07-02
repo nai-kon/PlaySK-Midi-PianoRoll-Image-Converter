@@ -15,4 +15,4 @@ uv run pip-licenses --format=plain-vertical --with-license-file --no-license-pat
 
 # copy files
 cp -p "3rd-party-license.txt" dist/
-cp -pr "src/assets/" "dist/playsk_midi_to_roll_image_converter_assets/"
+cp -pr "src/playsk_midi_to_roll_image_converter_assets/" "dist/playsk_midi_to_roll_image_converter_assets/"

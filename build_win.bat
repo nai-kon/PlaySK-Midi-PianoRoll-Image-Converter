@@ -11,4 +11,4 @@ uv run pip-licenses --format=plain-vertical --with-license-file --no-license-pat
 
 @REM copy files
 xcopy /i /y "3rd-party-license.txt" ".\dist\PlaySK Midi to Piano Roll Image Converter\"
-xcopy /s /i /y ".\src\assets\" ".\dist\PlaySK Midi to Piano Roll Image Converter\assets\"
+xcopy /s /i /y ".\src\playsk_midi_to_roll_image_converter_assets\" ".\dist\PlaySK Midi to Piano Roll Image Converter\playsk_midi_to_roll_image_converter_assets\"

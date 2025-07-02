@@ -1,19 +1,19 @@
 {
     "dark_mode": true,
-    "input_dir": "",
-    "output_dir": "",
+    "input_dir": "C:/Users/sasaki/Downloads",
+    "output_dir": "C:/Users/sasaki/Downloads",
     "tracker": "88-Note",
-    "tempo": 80,
+    "tempo": 90,
     "dpi": 300,
     "roll_width": 11.25,
     "hole_0_center": 0.14,
     "hole_99_center": 0.14,
-    "roll_side_margin": 0.25,
+    "roll_side_margin": 0.4,
     "hole_width": 0.07,
     "single_hole_max_len": 0.4,
     "chain_perf_spacing": 0.035,
     "shorten_len": 10,
     "compensate_accel": true,
     "accel_rate": 0.2,
-    "update_notified_version": "1.0.0"
+    "update_notified_version": ""
 }

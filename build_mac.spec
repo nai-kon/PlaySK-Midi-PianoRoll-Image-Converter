@@ -44,7 +44,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='PlaySK Midi to Piano Roll Image Converter.app',
-    icon='src/assets/PlaySK_icon.ico',
+    icon='src/playsk_midi_to_roll_image_converter_assets/PlaySK_icon.ico',
     bundle_identifier=None,
     version='1.0.0'
 )

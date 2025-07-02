@@ -13,7 +13,7 @@ import customtkinter as ctk
 from PIL import Image
 
 from config import ConfigMng
-from const import APP_VERSION, LINK_COLOR
+from const import APP_VERSION, ASSETS_DIR, LINK_COLOR
 
 
 class UpdateMessage(ctk.CTkToplevel):
@@ -23,8 +23,8 @@ class UpdateMessage(ctk.CTkToplevel):
         self.title("New Release")
         self.grab_set()
 
-        image = ctk.CTkImage(light_image=Image.open("assets/campaign_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"), 
-                        dark_image=Image.open("assets/campaign_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
+        image = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/campaign_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"), 
+                        dark_image=Image.open(f"{ASSETS_DIR}/campaign_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
         ctk.CTkLabel(self, image=image, compound="left", padx=10, text=f"New Version {new_version} has been released!", font=ctk.CTkFont(size=20, weight="bold")).pack(expand=1)
         
         link = ctk.CTkLabel(self, text="https://github.com/nai-kon/Midi-Image-Converter/releases", font=ctk.CTkFont(size=15, weight="bold"), text_color=LINK_COLOR)

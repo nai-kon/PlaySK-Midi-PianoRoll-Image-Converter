@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 from tkinterdnd2 import DND_ALL
 
 from config import ConfigMng
-from const import APP_HEIGHT, APP_TITLE, APP_WIDTH
+from const import APP_HEIGHT, APP_TITLE, APP_WIDTH, ASSETS_DIR
 from custom_widgets import CustomScrollableFrame, MyCTkFloatInput, MyCTkIntInput, MyTk
 from midi_to_image import Midi2Image
 from roll_viewer import RollViewer
@@ -72,7 +72,7 @@ class MainFrame():
         )
         res = converter.convert(self.midi_file_path)
         if not res:
-            CTkMessagebox(icon="assets/warning_256dp_4B77D1_FILL0_wght400_GRAD0_opsz48.png", title="Conversion Error", message="Conversion Error happened")
+            CTkMessagebox(icon=f"{ASSETS_DIR}/warning_256dp_4B77D1_FILL0_wght400_GRAD0_opsz48.png", title="Conversion Error", message="Conversion Error happened")
             return
 
         if isinstance(self.main_view, RollViewer):
@@ -99,7 +99,7 @@ class MainFrame():
         paths: tuple[str] = self.parent.tk.splitlist(event.data)  # parse filepath list
         path = paths[0]  # only one file is supported
         if not path.endswith(".mid"):
-            CTkMessagebox(icon="assets/warning_256dp_4B77D1_FILL0_wght400_GRAD0_opsz48.png", title="Unsupported File", message="Not MIDI file")
+            CTkMessagebox(icon=f"{ASSETS_DIR}/warning_256dp_4B77D1_FILL0_wght400_GRAD0_opsz48.png", title="Unsupported File", message="Not MIDI file")
         else:
             self._open_file(path)
 
@@ -135,7 +135,7 @@ class MainFrame():
         # sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         sidebar.grid(row=0, column=0, sticky="nsew")
 
-        btnimg = ctk.CTkImage(Image.open("assets/folder_open_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
+        btnimg = ctk.CTkImage(Image.open(f"{ASSETS_DIR}/folder_open_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
         self.fileopen = ctk.CTkButton(sidebar, text="Open & Convert MIDI", image=btnimg, command=self.file_sel)
         self.fileopen.pack(padx=10, pady=(10, 0), anchor="w", fill="both")
 
@@ -217,21 +217,21 @@ class MainFrame():
         self.accel_rate.insert(0, self.conf.accel_rate)
         self.accel_rate.pack(padx=25, anchor="w")
 
-        btnimg = ctk.CTkImage(Image.open("assets/refresh_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
+        btnimg = ctk.CTkImage(Image.open(f"{ASSETS_DIR}/refresh_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
         cnv_btn = ctk.CTkButton(sidebar, text="Update", image=btnimg, command=self.convert)
         cnv_btn.pack(padx=10, pady=10, anchor="w", fill="both")
 
-        btnimg = ctk.CTkImage(Image.open("assets/download_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
+        btnimg = ctk.CTkImage(Image.open(f"{ASSETS_DIR}/download_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
         save_btn = ctk.CTkButton(sidebar, text="Save Image", image=btnimg, command=self.save_image)
         save_btn.pack(padx=10, pady=10, anchor="w", fill="both")
 
-        btnimg = ctk.CTkImage(light_image=Image.open("assets/dark_mode_256dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.png"),
-                                        dark_image=Image.open("assets/light_mode_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
+        btnimg = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/dark_mode_256dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.png"),
+                                        dark_image=Image.open(f"{ASSETS_DIR}/light_mode_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
         dark_mode_btn = ctk.CTkButton(sidebar, text="", width=20, fg_color="transparent", hover_color=("gray70", "gray30"), image=btnimg, command=self.change_dark_light_mode)
         dark_mode_btn.pack(anchor="sw", side="left")
 
-        btnimg = ctk.CTkImage(light_image=Image.open("assets/info_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"),
-                                        dark_image=Image.open("assets/info_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
+        btnimg = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/info_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"),
+                                        dark_image=Image.open(f"{ASSETS_DIR}/info_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
         self.info_btn = ctk.CTkButton(sidebar, text="", width=20, fg_color="transparent", hover_color=("gray70", "gray30"), image=btnimg, command=self.show_image_info)
         # dark_mode_btn.pack_forget()
 
@@ -247,7 +247,7 @@ if __name__ == "__main__":
     app.title(APP_TITLE)
     app.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
     app.wm_iconbitmap()
-    app.iconphoto(False, ImageTk.PhotoImage(file="assets/PlaySK_icon.ico"))
+    app.iconphoto(False, ImageTk.PhotoImage(file=f"{ASSETS_DIR}/PlaySK_icon.ico"))
     app.grid_columnconfigure(0, weight=0)  # sidebar
     app.grid_columnconfigure(1, weight=10)  # Main view
     app.grid_rowconfigure(0, weight=1)

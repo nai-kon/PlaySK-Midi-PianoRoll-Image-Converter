@@ -3,7 +3,9 @@ import os
 
 from pydantic import BaseModel
 
-CONFIG_PATH = os.path.join("assets", "config.json")
+from const import ASSETS_DIR
+
+CONFIG_PATH = os.path.join(ASSETS_DIR, "config.json")
 
 class ConfigMng(BaseModel):
     dark_mode: bool =  True
