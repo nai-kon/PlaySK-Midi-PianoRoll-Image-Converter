@@ -3,23 +3,15 @@ import os
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
 from PIL import Image, ImageTk
-from tkinterdnd2 import DND_ALL, TkinterDnD
+from tkinterdnd2 import DND_ALL
 
 from config import ConfigMng
 from const import APP_HEIGHT, APP_TITLE, APP_WIDTH
-from custom_widgets import MyCTkFloatInput, MyCTkIntInput, MyScrollableFrame
+from custom_widgets import CustomScrollableFrame, MyCTkFloatInput, MyCTkIntInput, MyTk
 from midi_to_image import Midi2Image
 from roll_viewer import RollViewer
 from update_checker import NotifyUpdate
 from welcome_message import WelcomMessage
-
-
-# For Drag&Drop File Support
-# https://stackoverflow.com/a/75527642
-class Tk(ctk.CTk, TkinterDnD.DnDWrapper):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.TkdndVersion = TkinterDnD._require(self)
 
 
 class MainFrame():
@@ -121,7 +113,7 @@ class MainFrame():
             self.conf.output_dir = os.path.dirname(path)
 
     def create_sidebar(self):
-        sidebar = MyScrollableFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
+        sidebar = CustomScrollableFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         # sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         sidebar.grid(row=0, column=0, sticky="nsew")
 
@@ -221,7 +213,7 @@ class MainFrame():
         dark_mode_btn.pack(padx=5, anchor="sw")
 
 if __name__ == "__main__":
-    app = Tk()
+    app = MyTk()
     app.title(APP_TITLE)
     app.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
     app.wm_iconbitmap()
