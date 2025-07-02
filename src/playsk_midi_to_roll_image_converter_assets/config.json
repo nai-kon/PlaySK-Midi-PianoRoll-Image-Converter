@@ -1,9 +1,9 @@
 {
     "dark_mode": true,
-    "input_dir": "C:/Users/sasaki/Downloads",
-    "output_dir": "C:/Users/sasaki/Downloads",
+    "input_dir": "",
+    "output_dir": "",
     "tracker": "88-Note",
-    "tempo": 90,
+    "tempo": 80,
     "dpi": 300,
     "roll_width": 11.25,
     "hole_0_center": 0.14,
@@ -15,5 +15,5 @@
     "shorten_len": 10,
     "compensate_accel": true,
     "accel_rate": 0.2,
-    "update_notified_version": ""
+    "update_notified_version": "1.0.0"
 }
