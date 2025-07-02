@@ -59,11 +59,14 @@ class RollViewer():
         bottom = (self.offset_y + self.view_height) / self.resize_img_h
         self.scrollbar.set(top, bottom)
 
-    def on_mousewheel(self, event):
-        self.offset_y -= event.delta * self.orig_scaling_ratio
+    def call_draw(self):
         self.clamp_offset()
         self.draw()
         self.update_scrollbar()
+    
+    def on_mousewheel(self, event):
+        self.offset_y -= event.delta * 2
+        self.image_label.after(0, self.call_draw)
 
     def on_scrollbar(self, *args):
         if args[0] == "moveto":
@@ -72,6 +75,4 @@ class RollViewer():
             lines = int(args[1])
             self.offset_y += lines * 30
         
-        self.clamp_offset()
-        self.draw()
-        self.update_scrollbar()
+        self.image_label.after(0, self.call_draw)
