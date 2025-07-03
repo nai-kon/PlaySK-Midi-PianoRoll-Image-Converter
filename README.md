@@ -18,7 +18,7 @@ On the other hand, Welte has all same hole size and offset and it will be conver
 
 # Tips
 
-* Currently, Multi-track midi file is not supported currently.
+* Currently, Multi-track midi file is not supported.
 * Currently, tempo change event during music is not supported
 * The output DPI can be changed. If DPI is large, conversion takes a lot of time and RAM. The default 300 DPI is recommended.
 * Image is saved as .PNG for efficient file size.
