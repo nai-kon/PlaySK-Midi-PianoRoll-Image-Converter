@@ -5,10 +5,10 @@ from CTkMessagebox import CTkMessagebox
 from PIL import Image, ImageTk
 from tkinterdnd2 import DND_ALL
 
+from converter_base import create_converter
 from config import ConfigMng
 from const import APP_HEIGHT, APP_TITLE, APP_WIDTH, ASSETS_DIR
 from custom_widgets import CustomScrollableFrame, MyCTkFloatInput, MyCTkIntInput, MyTk
-from midi_to_image import Midi2Image
 from roll_viewer import RollViewer
 from update_checker import NotifyUpdate
 from welcome_message import WelcomMessage
@@ -28,7 +28,14 @@ class MainFrame():
     
     def on_close(self, root):
         # save configs
-        # self.conf.dark_mode  (already synchro)
+        self.sync_conf()
+        self.conf.save_config()
+        root.destroy()
+
+    def sync_conf(self):
+        # self.conf.dark_mode will be set by change_dark_light_mode()
+        # self.conf.input_dir will be set by file_sel()
+        # self.conf.output_dir will be set by filsave_imagee_sel()
         self.conf.tracker = self.tracker_bar.get()
         self.conf.tempo = int(self.tempo_slider.get())
         self.conf.dpi = int(self.roll_dpi.get())
@@ -42,8 +49,7 @@ class MainFrame():
         self.conf.shorten_len = int(self.shorten_len.get())
         self.conf.compensate_accel = bool(self.compensate_accel.get())
         self.conf.accel_rate = float(self.accel_rate.get())
-        self.conf.save_config()
-        root.destroy()
+        # self.conf.update_notified_version will be set by NotifyUpdate.check()
 
     def change_dark_light_mode(self, change_state: bool = True) -> None:
         if change_state:
@@ -51,25 +57,12 @@ class MainFrame():
         ctk.set_appearance_mode("Dark" if self.conf.dark_mode else "Light")
 
     def convert(self) -> None:
+        print("convert called")
         if self.midi_file_path is None:
             return
 
-        accel_rate = float(self.accel_rate.get()) / 100 if self.compensate_accel.get() else 0
-        converter = Midi2Image(
-            int(self.roll_dpi.get()),
-            int(self.tempo_slider.get()),
-            accel_rate,
-            float(self.roll_side_margin.get()),
-            float(self.roll_width.get()),
-            float(self.hole_width.get()),
-            float(self.chain_perf_spacing.get()),
-            float(self.single_hole_max_len.get()),
-            float(self.hole_0_center.get()),
-            float(self.hole_99_center.get()),
-            int(self.shorten_len.get()),
-            # float(self.roll_start_pad.get()),
-            # float(self.roll_end_pad.get()),
-        )
+        self.sync_conf()
+        converter = create_converter(self.tracker_bar.get(), self.conf)
         res = converter.convert(self.midi_file_path)
         if not res:
             CTkMessagebox(icon=f"{ASSETS_DIR}/warning_256dp_4B77D1_FILL0_wght400_GRAD0_opsz48.png", title="Conversion Error", message="Conversion Error happened")
@@ -126,9 +119,9 @@ class MainFrame():
         msgbox.grab_set()
 
         font = ctk.CTkFont(size=15)
-        ctk.CTkLabel(msgbox, text=f"Image Width: {img_w} px", font=font).pack(padx=10, pady=5, anchor="w")
-        ctk.CTkLabel(msgbox, text=f"Image Height: {img_h} px ", font=font).pack(padx=10, pady=5, anchor="w")
-        ctk.CTkLabel(msgbox, text=f"Image Length: {length:.2f} feet @{dpi}DPI", font=font).pack(padx=10, pady=5, anchor="w")
+        ctk.CTkLabel(msgbox, text=f"Width: {img_w} px", font=font).pack(padx=10, pady=5, anchor="w")
+        ctk.CTkLabel(msgbox, text=f"Height: {img_h} px ", font=font).pack(padx=10, pady=5, anchor="w")
+        ctk.CTkLabel(msgbox, text=f"Length: {length:.2f} feet @{dpi}DPI", font=font).pack(padx=10, pady=5, anchor="w")
 
     def create_sidebar(self):
         sidebar = CustomScrollableFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
@@ -140,7 +133,7 @@ class MainFrame():
         self.fileopen.pack(padx=10, pady=(10, 0), anchor="w", fill="both")
 
         ctk.CTkLabel(sidebar, text="Tracker Bar").pack(padx=10, anchor="w")
-        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=["88-Note"])
+        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=["88-Note", "AmpicoA"], command=lambda e: self.convert())
         self.tracker_bar.set(self.conf.tracker)
         self.tracker_bar.pack(padx=10, anchor="w", fill="both")
 
