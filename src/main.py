@@ -125,13 +125,13 @@ class MainFrame():
     def create_sidebar(self):
         def on_change(value=None) -> None:
             self.convert()  # update image when option menu changes
-            
+
         sidebar = CustomScrollableFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         # sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         sidebar.grid(row=0, column=0, sticky="nsew")
 
         btnimg = ctk.CTkImage(Image.open(f"{ASSETS_DIR}/folder_open_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
-        self.fileopen = ctk.CTkButton(sidebar, text="Open & Convert MIDI", image=btnimg, command=self.file_sel)
+        self.fileopen = ctk.CTkButton(sidebar, text="Open MIDI", image=btnimg, command=self.file_sel)
         self.fileopen.pack(padx=10, pady=(10, 0), anchor="w", fill="both")
 
         ctk.CTkLabel(sidebar, text="Tracker Bar").pack(padx=10, anchor="w")
@@ -141,16 +141,11 @@ class MainFrame():
 
         self.tempo_label = ctk.CTkLabel(sidebar, text=f"Tempo:{self.conf.tempo}")
         self.tempo_label.pack(padx=10, anchor="w")
-        self.prev_tempo = -1
-        def tempo_change(tempo):
-            if tempo != self.prev_tempo:
-                self.tempo_label.configure(text=f"Tempo:{tempo:.0f}")
-                on_change()
-            self.prev_tempo = tempo
         self.tempo_slider = ctk.CTkSlider(sidebar, from_=30, to=140, number_of_steps=(140 - 30) / 5,  # interval of 5
-                                          command=tempo_change)
+                                          command=lambda e: self.tempo_label.configure(text=f"Tempo:{e:.0f}"))
         self.tempo_slider.set(self.conf.tempo)
         self.tempo_slider.pack(padx=10, anchor="w")
+        self.tempo_slider.bind("<ButtonRelease-1>", on_change)
 
         ctk.CTkLabel(sidebar, text="Output Image DPI").pack(padx=10, anchor="w")
         self.roll_dpi = MyCTkIntInput(sidebar, on_change)
@@ -218,10 +213,6 @@ class MainFrame():
         self.accel_rate.insert(0, self.conf.accel_rate)
         self.accel_rate.pack(padx=25, anchor="w")
 
-        btnimg = ctk.CTkImage(Image.open(f"{ASSETS_DIR}/refresh_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
-        cnv_btn = ctk.CTkButton(sidebar, text="Update", image=btnimg, command=self.convert)
-        cnv_btn.pack(padx=10, pady=10, anchor="w", fill="both")
-
         btnimg = ctk.CTkImage(Image.open(f"{ASSETS_DIR}/download_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
         save_btn = ctk.CTkButton(sidebar, text="Save Image", image=btnimg, command=self.save_image)
         save_btn.pack(padx=10, pady=10, anchor="w", fill="both")
@@ -234,7 +225,6 @@ class MainFrame():
         btnimg = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/info_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"),
                                         dark_image=Image.open(f"{ASSETS_DIR}/info_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
         self.info_btn = ctk.CTkButton(sidebar, text="", width=20, fg_color="transparent", hover_color=("gray70", "gray30"), image=btnimg, command=self.show_image_info)
-        # dark_mode_btn.pack_forget()
 
 
 if __name__ == "__main__":
