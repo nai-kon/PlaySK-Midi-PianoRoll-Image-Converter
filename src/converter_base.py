@@ -64,14 +64,19 @@ class BaseConverter:
         hole_x: int = self.hole_x_list[note_no - 15]
         hole_y1: float = self.get_tick_to_px(on_tick, tempo, bpm, ppq) + self.roll_start_pad_px
         hole_y2: float = hole_y1 + hole_h
-
-        if (offset := self.custom_hole_offsets.get(note_no, {"top_offset": self.shorten_hole_px / 2, "bottom_offset": -self.shorten_hole_px / 2})) is not None:
+        
+        # custom hole offsets
+        if (offset := self.custom_hole_offsets.get(note_no)) is not None:
             hole_y1 += offset["top_offset"]
             hole_y2 += offset["bottom_offset"]
-            hole_h = hole_y2 - hole_y1
-            if hole_h < self.hole_width_px:
-                hole_y1 -= (self.hole_width_px - hole_h) // 2
-                hole_y2 += (self.hole_width_px - hole_h) // 2
+
+        # default hole offsets
+        hole_y1 += self.shorten_hole_px / 2
+        hole_y2 += -self.shorten_hole_px / 2
+        hole_h = hole_y2 - hole_y1
+        if hole_h < self.hole_width_px:
+            hole_y1 -= (self.hole_width_px - hole_h) // 2
+            hole_y2 += (self.hole_width_px - hole_h) // 2
 
         # compensate roll acceleration
         hole_y1 = int(hole_y1 * self.get_roll_acceleration_rate(hole_y1))
@@ -150,8 +155,11 @@ class BaseConverter:
 def create_converter(name: str, conf: ConfigMng) -> BaseConverter:
     """Simple factory method of converter class"""
     if name == "AmpicoA":
-        from converter_ampico_a import AmpicoA
+        from converter_ampico import AmpicoA
         return AmpicoA(conf)
+    if name == "AmpicoB":
+        from converter_ampico import AmpicoB
+        return AmpicoB(conf)
     elif name == "88-Note":
         return BaseConverter(conf)
     else:
