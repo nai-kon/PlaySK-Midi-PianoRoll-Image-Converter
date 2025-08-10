@@ -5,7 +5,7 @@ from CTkMessagebox import CTkMessagebox
 from PIL import Image, ImageTk
 from tkinterdnd2 import DND_ALL
 
-from converter_base import create_converter
+from converter_base import create_converter, CONVERTER_LIST
 from config import ConfigMng
 from const import APP_HEIGHT, APP_TITLE, APP_WIDTH, ASSETS_DIR
 from custom_widgets import CustomScrollableFrame, MyCTkFloatInput, MyCTkIntInput, MyTk
@@ -135,7 +135,7 @@ class MainFrame():
         self.fileopen.pack(padx=10, pady=(10, 0), anchor="w", fill="both")
 
         ctk.CTkLabel(sidebar, text="Tracker Bar").pack(padx=10, anchor="w")
-        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=["88-Note", "AmpicoA"], command=on_change)
+        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=CONVERTER_LIST, command=on_change)
         self.tracker_bar.set(self.conf.tracker)
         self.tracker_bar.pack(padx=10, anchor="w", fill="both")
 

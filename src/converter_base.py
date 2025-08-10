@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw
 
 from config import ConfigMng
 
+CONVERTER_LIST = ["88-Note", "AmpicoA", "AmpicoB"]
 
 class BaseConverter:
     """88-note class for MIDI to Image conversion."""
@@ -154,13 +155,13 @@ class BaseConverter:
 
 def create_converter(name: str, conf: ConfigMng) -> BaseConverter:
     """Simple factory method of converter class"""
-    if name == "AmpicoA":
+    if name == CONVERTER_LIST[1]:
         from converter_ampico import AmpicoA
         return AmpicoA(conf)
-    if name == "AmpicoB":
+    if name == CONVERTER_LIST[2]:
         from converter_ampico import AmpicoB
         return AmpicoB(conf)
-    elif name == "88-Note":
+    elif name == CONVERTER_LIST[0]:
         return BaseConverter(conf)
     else:
         raise ValueError(f"Unknown converter type: {name}")
