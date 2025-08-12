@@ -23,7 +23,7 @@ class ConfigMng(BaseModel):
     chain_perf_spacing: float = 0.035
     shorten_len: int = 10
     compensate_accel: bool = True
-    accel_rate: float = 0.2
+    accel_rate: float = 0.18
     update_notified_version: str = ""
     
     def __init__(self):
