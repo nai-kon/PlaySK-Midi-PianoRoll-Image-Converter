@@ -5,10 +5,11 @@ from CTkMessagebox import CTkMessagebox
 from PIL import Image, ImageTk
 from tkinterdnd2 import DND_ALL
 
-from converter_base import create_converter, CONVERTER_LIST
 from config import ConfigMng
 from const import APP_HEIGHT, APP_TITLE, APP_WIDTH, ASSETS_DIR
-from custom_widgets import CustomScrollableFrame, MyCTkFloatInput, MyCTkIntInput, MyTk
+from converter_base import CONVERTER_LIST, create_converter
+from custom_widgets import (CustomScrollableFrame, MyCTkFloatInput,
+                            MyCTkIntInput, MyTk)
 from roll_viewer import RollViewer
 from update_checker import NotifyUpdate
 from welcome_message import WelcomMessage
@@ -120,7 +121,7 @@ class MainFrame():
         font = ctk.CTkFont(size=15)
         ctk.CTkLabel(msgbox, text=f"Width: {img_w} px", font=font).pack(padx=10, pady=5, anchor="w")
         ctk.CTkLabel(msgbox, text=f"Height: {img_h} px ", font=font).pack(padx=10, pady=5, anchor="w")
-        ctk.CTkLabel(msgbox, text=f"Length: {length:.2f} feet @{dpi}DPI", font=font).pack(padx=10, pady=5, anchor="w")
+        ctk.CTkLabel(msgbox, text=f"Length: {length:.1f} ft ({length * 0.3048:.1f} m) @{dpi}DPI", font=font).pack(padx=10, pady=5, anchor="w")
 
     def create_sidebar(self):
         def on_change(value=None) -> None:
@@ -166,16 +167,6 @@ class MainFrame():
         self.hole_99_center = MyCTkFloatInput(sidebar, on_change)
         self.hole_99_center.insert(0, self.conf.hole_99_center)
         self.hole_99_center.pack(padx=10, anchor="w")
-
-        # ctk.CTkLabel(sidebar, text="Padding on roll start (inch)").grid(row=13, column=0, padx=10, sticky="w")
-        # self.roll_start_pad = MyCTkFloatInput(sidebar)
-        # self.roll_start_pad.insert(0, "2.0")
-        # self.roll_start_pad.grid(row=14, column=0, padx=10, sticky="w")
-
-        # ctk.CTkLabel(sidebar, text="Padding on roll end (inch)").grid(row=15, column=0, padx=10, sticky="w")
-        # self.roll_end_pad = MyCTkFloatInput(sidebar)
-        # self.roll_end_pad.insert(0, "2.0")
-        # self.roll_end_pad.grid(row=16, column=0, padx=10, sticky="w")
 
         ctk.CTkLabel(sidebar, text="Margins on roll sides (inch)").pack(padx=10, anchor="w")
         self.roll_side_margin = MyCTkFloatInput(sidebar, on_change)
