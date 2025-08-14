@@ -1,10 +1,30 @@
 
+from typing import Any, Callable
+
 import customtkinter as ctk
 from tkinterdnd2 import TkinterDnD
 
 
-def MyCTkFloatInput(parent):
-    def validate_float_input(value):
+class MyCTkFloatInput(ctk.CTkEntry):
+    def __init__(self, parent, on_change: Callable[[Any], None] | None = None) -> None:
+        self.prev_value: str | None = None
+        self.on_change = on_change
+        validate_cmd = parent.register(self.validate_input)
+        super().__init__(parent, validate="key", validatecommand=(validate_cmd, "%P"))
+        self.bind("<Return>", command=self.on_change_inner)  # callback on Enter
+        self.bind("<FocusOut>", command=self.on_change_inner)  # callback on leave input
+
+    def insert(self, index: int, string: str | int | float) -> None:
+        self.prev_value = str(string)
+        super().insert(index, string)
+
+    def on_change_inner(self, event):
+        value = self.get()
+        if self.on_change and value != self.prev_value:
+            self.on_change(value)
+        self.prev_value = value
+
+    def validate_input(self, value):
         try:
             if value != "":  # Allow empty input
                 float(value)  # Try to convert to float
@@ -12,26 +32,21 @@ def MyCTkFloatInput(parent):
         except ValueError:
             return False
 
-    validate_cmd = parent.register(validate_float_input)
-    return ctk.CTkEntry(parent, validate="key", validatecommand=(validate_cmd, "%P"))
 
-def MyCTkIntInput(parent):
-    def validate_int_input(value):
+class MyCTkIntInput(MyCTkFloatInput):
+    def validate_input(self, value):
         try:
             if value != "":  # Allow empty input
-                int(value)  # Try to convert to int
+                int(value)  # Try to convert to float
             return True
         except ValueError:
             return False
-
-    validate_cmd = parent.register(validate_int_input)
-    return ctk.CTkEntry(parent, validate="key", validatecommand=(validate_cmd, "%P"))
 
 
 # For Drag&Drop File Support
 # https://stackoverflow.com/a/75527642
 class MyTk(ctk.CTk, TkinterDnD.DnDWrapper):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.TkdndVersion = TkinterDnD._require(self)
 

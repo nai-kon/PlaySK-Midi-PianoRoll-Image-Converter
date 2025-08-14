@@ -4,50 +4,43 @@ import time
 import mido
 from PIL import Image, ImageDraw
 
+from config import ConfigMng
 
-class Midi2Image:
-    def __init__(
-        self,
-        roll_dpi: int = 300,
-        roll_tempo: int = 95,
-        roll_accelerate_rate_ft: float = 0.002,  # 0.2% per feet from Stanford Univ paper. set 0% without acceleration.
-        roll_margin: float = 0.25,
-        roll_width: float = 11.25,
-        hole_width: float = 0.07,
-        chain_hole_spacing: float = 0.035,
-        single_hole_max_len: float = 0.4,
-        hole_0_center: float = 0.14,  # from left edge of the roll
-        hole_99_center: float = 0.14,  # from left edge of the roll
-        shorten_hole_px: int = 10,
-        roll_start_pad: float = 2,
-        roll_end_pad: float = 2,
-    ):
-        self.roll_dpi = roll_dpi
-        self.roll_tempo = roll_tempo
-        self.roll_accelerate_rate_ft = roll_accelerate_rate_ft
+CONVERTER_LIST = ["88-Note", "AmpicoA", "AmpicoB"]
+
+class BaseConverter:
+    """88-note class for MIDI to Image conversion."""
+    def __init__(self, conf: ConfigMng) -> None:
+        self.roll_dpi = conf.dpi
+        self.roll_tempo = conf.tempo
+        self.roll_accelerate_rate_ft = float(conf.accel_rate) / 100 if conf.compensate_accel else 0
 
         # in inches
-        self.roll_start_pad = roll_start_pad
-        self.roll_end_pad = roll_end_pad
-        self.roll_margin = roll_margin
-        self.roll_width = roll_width
-        self.hole_width = hole_width
-        self.chain_hole_spacing = chain_hole_spacing
-        self.single_hole_max_len = single_hole_max_len
-        self.hole_0_center = hole_0_center
-        self.hole_99_center = roll_width - hole_99_center
+        self.roll_start_pad = 2
+        self.roll_end_pad = 2
+        self.roll_margin = conf.roll_side_margin
+        self.hole_width = conf.hole_width
+        self.chain_hole_spacing = conf.chain_perf_spacing
+        self.single_hole_max_len = conf.single_hole_max_len
+        self.hole_0_center = conf.hole_0_center
+        self.hole_99_center = conf.roll_width - conf.hole_99_center
         self.hole_num = 100
         self.roll_color = 120  # in grayscale
+
+        self.custom_hole_offsets: dict[int, dict[str, float]] = {
+            # 88-note is not used. For Duo-Art or Ampico etc... 
+            # note_number: {"top hole offset": XX (inch), "bottom hole offset": XX (inch)} 
+        }  
 
         # in pixels
         self.roll_start_pad_px = int(self.roll_dpi * self.roll_start_pad)
         self.roll_end_pad_px = int(self.roll_dpi * self.roll_end_pad)
         self.roll_margin_px = int(self.roll_dpi * self.roll_margin)
-        self.roll_width_px = int(self.roll_dpi * self.roll_width)
+        self.roll_width_px = int(self.roll_dpi * conf.roll_width)
         self.hole_width_px = int(self.roll_dpi * self.hole_width)
         self.chain_perforation_spacing_px = int(self.roll_dpi * self.chain_hole_spacing)
         self.single_hole_max_len_px = int(self.roll_dpi * self.single_hole_max_len)
-        self.shorten_hole_px = shorten_hole_px
+        self.shorten_hole_px = conf.shorten_len
 
         self.control_change_map = [
             {"controlChangeNo": 64, "midiNoteNo": 18},
@@ -57,22 +50,34 @@ class Midi2Image:
         self.out_img: Image.Image | None = None
         self.draw: ImageDraw | None = None
 
-    def get_roll_acceleration_rate(self, px: int) -> float:
+    def get_roll_acceleration_rate(self, px: float) -> float:
         cur_feet = px / self.roll_dpi / 12.0
         return (1 + self.roll_accelerate_rate_ft) ** cur_feet
 
-    def _get_hole_x(self, note_no):
+    def _get_hole_x(self, note_no: int) -> int:
         return int(self.roll_dpi * (self.roll_margin + self.hole_0_center + ((note_no) * (self.hole_99_center - self.hole_0_center) / (self.hole_num - 1)) - (self.hole_width / 2)))
 
-    def get_tick_to_px(self, tick_len, tempo, bpm, ppq):
-        return int(((tick_len * self.roll_dpi * tempo * 1.2) / (bpm * ppq)))
+    def get_tick_to_px(self, tick_len, tempo: int, bpm: float, ppq: int) -> float:
+        return ((tick_len * self.roll_dpi * tempo * 1.2) / (bpm * ppq))
 
-    def draw_hole(self, note_no, tempo, bpm, ppq, on_tick, off_tick):
-        hole_h = self.get_tick_to_px(off_tick - on_tick, tempo, bpm, ppq) - self.shorten_hole_px
-        hole_h = max(hole_h, self.hole_width_px)
-        hole_x = self.hole_x_list[note_no - 15]
-        hole_y1 = self.get_tick_to_px(on_tick, tempo, bpm, ppq) + self.roll_start_pad_px
-        hole_y2 = hole_y1 + hole_h
+    def draw_hole(self, note_no: int, tempo: int, bpm: float, ppq: int, on_tick: int, off_tick: int) -> None:
+        hole_h: float = self.get_tick_to_px(off_tick - on_tick, tempo, bpm, ppq)
+        hole_x: int = self.hole_x_list[note_no - 15]
+        hole_y1: float = self.get_tick_to_px(on_tick, tempo, bpm, ppq) + self.roll_start_pad_px
+        hole_y2: float = hole_y1 + hole_h
+        
+        # custom hole offsets
+        if (offset := self.custom_hole_offsets.get(note_no)) is not None:
+            hole_y1 += offset["top_offset"]
+            hole_y2 += offset["bottom_offset"]
+
+        # default hole offsets
+        hole_y1 += self.shorten_hole_px / 2
+        hole_y2 += -self.shorten_hole_px / 2
+        hole_h = hole_y2 - hole_y1
+        if hole_h < self.hole_width_px:
+            hole_y1 -= (self.hole_width_px - hole_h) // 2
+            hole_y2 += (self.hole_width_px - hole_h) // 2
 
         # compensate roll acceleration
         hole_y1 = int(hole_y1 * self.get_roll_acceleration_rate(hole_y1))
@@ -148,14 +153,29 @@ class Midi2Image:
             self.out_img.save(savepath)
 
 
+def create_converter(name: str, conf: ConfigMng) -> BaseConverter:
+    """Simple factory method of converter class"""
+    if name == CONVERTER_LIST[1]:
+        from converter_ampico import AmpicoA
+        return AmpicoA(conf)
+    if name == CONVERTER_LIST[2]:
+        from converter_ampico import AmpicoB
+        return AmpicoB(conf)
+    elif name == CONVERTER_LIST[0]:
+        return BaseConverter(conf)
+    else:
+        raise ValueError(f"Unknown converter type: {name}")
+
+
 if __name__ == "__main__":
     input_dir = "C:\\Users\\sasaki\\Downloads\\Ampico_All_erolls\\test\\"
     output_dir = "output/classic/"
     for filename in os.listdir(input_dir):
         if filename.lower().endswith(".mid"):
             path = os.path.join(input_dir, filename)
+            conf = ConfigMng()
             t1 = time.time()
-            m2i = Midi2Image()
+            m2i = BaseConverter(conf)
             m2i.convert(path)
             save_path = os.path.join(output_dir, os.path.basename(filename).replace(".mid", f" tempo{m2i.roll_tempo}.png"))
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
