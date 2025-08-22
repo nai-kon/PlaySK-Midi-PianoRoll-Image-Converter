@@ -10,11 +10,9 @@ Also the converted image might be converted to G-Code for laser perforator, usin
 # Support Tracker Bar
 
 * 88-note
+* Ampico A/B
 
-Currently 88-Note tracker bar is supported. In the future, more tracker bars will supported such as 65-note, Aeolian 176-note, Ampico, Duo-Art, etc.
-
-Since the program supports 100 holes of output, it can actually convert Ampico and Duo-Art e-roll MIDI as well, but the expression holes will be misaligned.
-On the other hand, Welte has all same hole size and offset and it will be converted correctly with 88-note tracker bar.
+In the future, more tracker bars will supported such as 65-note, Aeolian 176-note, Duo-Art, etc.
 
 # Tips
 
