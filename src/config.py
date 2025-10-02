@@ -15,8 +15,8 @@ class ConfigMng(BaseModel):
     tempo: int = 80
     dpi: int = 300
     roll_width: float = 11.25
-    hole_0_center: float = 0.14
-    hole_99_center: float = 0.14
+    leftest_hole_center: float = 0.14
+    rightest_hole_center: float = 0.14
     roll_side_margin: float = 0.25
     hole_width: float = 0.07
     single_hole_max_len: float = 0.4

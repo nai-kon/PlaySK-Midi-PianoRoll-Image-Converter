@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 
 from config import ConfigMng
 
-CONVERTER_LIST = ["88-Note", "AmpicoA", "AmpicoB"]
+CONVERTER_LIST = ["88-Note", "AmpicoA", "AmpicoB", "Aeolian 176-note"]
 
 class BaseConverter:
     """88-note class for MIDI to Image conversion."""
@@ -22,8 +22,8 @@ class BaseConverter:
         self.hole_width = conf.hole_width
         self.chain_hole_spacing = conf.chain_perf_spacing
         self.single_hole_max_len = conf.single_hole_max_len
-        self.hole_0_center = conf.hole_0_center
-        self.hole_99_center = conf.roll_width - conf.hole_99_center
+        self.leftest_hole_center = conf.leftest_hole_center
+        self.rightest_hole_center = conf.roll_width - conf.rightest_hole_center
         self.hole_num = 100
         self.roll_color = 120  # in grayscale
 
@@ -46,6 +46,10 @@ class BaseConverter:
             {"controlChangeNo": 64, "midiNoteNo": 18},
             {"controlChangeNo": 67, "midiNoteNo": 113},
         ]
+
+        self.custom_note_map: dict[int, dict[int, int]] = {
+        }
+
         self.hole_x_list = [self._get_hole_x(i) for i in range(128)]
         self.out_img: Image.Image | None = None
         self.draw: ImageDraw | None = None
@@ -55,7 +59,7 @@ class BaseConverter:
         return (1 + self.roll_accelerate_rate_ft) ** cur_feet
 
     def _get_hole_x(self, note_no: int) -> int:
-        return int(self.roll_dpi * (self.roll_margin + self.hole_0_center + ((note_no) * (self.hole_99_center - self.hole_0_center) / (self.hole_num - 1)) - (self.hole_width / 2)))
+        return int(self.roll_dpi * (self.roll_margin + self.leftest_hole_center + ((note_no) * (self.rightest_hole_center - self.leftest_hole_center) / (self.hole_num - 1)) - (self.hole_width / 2)))
 
     def get_tick_to_px(self, tick_len, tempo: int, bpm: float, ppq: int) -> float:
         return ((tick_len * self.roll_dpi * tempo * 1.2) / (bpm * ppq))
@@ -97,12 +101,13 @@ class BaseConverter:
         self.draw.rounded_rectangle([hole_x, y, hole_x + self.hole_width_px, hole_y1], radius=self.hole_width_px // 2, fill=255)
 
     def convert(self, midi_path: str) -> bool:
-        try:
+        # try:
+        if True:
             mid = mido.MidiFile(midi_path)
             ppq = mid.ticks_per_beat
             bpm = 80.0
 
-            note_on_ticks: list[int | None] = [0] * 128
+            note_on_ticks: list[int | None] = [0] * 512
             initialized = False
             total_ticks = 0
             for track in mid.tracks:
@@ -138,13 +143,15 @@ class BaseConverter:
                                     note_on_ticks[map["midiNoteNo"]] = None  # some midi has error, msg.value=0 multiple time. So, ignore it.
 
                         if msg.type == "note_on" and msg.velocity > 0:
-                            note_on_ticks[msg.note] = abs_tick
+                            note_no = self.custom_note_map.get(msg.channel, {}).get(msg.note, msg.note)
+                            note_on_ticks[note_no] = abs_tick
                         elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
-                            self.draw_hole(msg.note, self.roll_tempo, bpm, ppq, note_on_ticks[msg.note], abs_tick)
+                            note_no = self.custom_note_map.get(msg.channel, {}).get(msg.note, msg.note)
+                            self.draw_hole(note_no, self.roll_tempo, bpm, ppq, note_on_ticks[note_no], abs_tick)
 
-        except Exception as e:
-            print(e)
-            return False
+        # except Exception as e:
+        #     print(e)
+        #     return False
 
         return True
             
@@ -161,6 +168,9 @@ def create_converter(name: str, conf: ConfigMng) -> BaseConverter:
     if name == CONVERTER_LIST[2]:
         from converter_ampico import AmpicoB
         return AmpicoB(conf)
+    elif name == CONVERTER_LIST[3]:
+        from converter_duoart_organ import DuoArtOrgan
+        return DuoArtOrgan(conf)
     elif name == CONVERTER_LIST[0]:
         return BaseConverter(conf)
     else:
