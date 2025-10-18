@@ -1,5 +1,6 @@
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import customtkinter as ctk
 from tkinterdnd2 import TkinterDnD

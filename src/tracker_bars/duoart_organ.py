@@ -37,7 +37,7 @@ class DuoArtOrgan(BaseConverter):
 class DuoArtOrganSetting(CustomScrollableFrame):
     def __init__(self, parent: ctk.CTk, conf: ConfigMng) -> None:
         super().__init__(parent)
-        self.grid(row=0, column=0, sticky="nsew")    
+        self.grid(row=0, column=0, sticky="nsew")
 
         self.detailed_settings = conf.tracker_config.get("detailed_settings", {})
 

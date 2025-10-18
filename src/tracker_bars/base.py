@@ -28,9 +28,9 @@ class BaseConverter:
         self.roll_color = 120  # in grayscale
 
         self.custom_hole_offsets: dict[int, dict[str, float]] = {
-            # 88-note is not used. For Duo-Art or Ampico etc... 
-            # note_number: {"top hole offset": XX (inch), "bottom hole offset": XX (inch)} 
-        }  
+            # 88-note is not used. For Duo-Art or Ampico etc...
+            # note_number: {"top hole offset": XX (inch), "bottom hole offset": XX (inch)}
+        }
 
         # in pixels
         self.roll_start_pad_px = int(self.roll_dpi * self.roll_start_pad)
@@ -49,7 +49,7 @@ class BaseConverter:
         }
 
         self.custom_note_map: dict[int, dict[int, int]] = {
-            # channel_no: {original_note_number: new_note_number, ...}, 
+            # channel_no: {original_note_number: new_note_number, ...},
             # not used in 88-note
         }
 
@@ -72,7 +72,7 @@ class BaseConverter:
         hole_x: int = self.hole_x_list[note_no - 15]
         hole_y1: float = self.get_tick_to_px(on_tick, tempo, bpm, ppq) + self.roll_start_pad_px
         hole_y2: float = hole_y1 + hole_h
-        
+
         # custom hole offsets
         if (offset := self.custom_hole_offsets.get(note_no)) is not None:
             hole_y1 += offset["top_offset"]
@@ -156,7 +156,7 @@ class BaseConverter:
             return False
 
         return True
-            
+
     def saveimg(self, savepath: str) -> None:
         if self.out_img is not None:
             self.out_img.save(savepath)

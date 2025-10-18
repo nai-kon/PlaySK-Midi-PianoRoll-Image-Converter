@@ -1,11 +1,9 @@
 import json
-import os
-import glob
 
 from const import BASE_CONFIG_PATH, CONVERTER_CONFIG_PATHS
 
 
-class ConfigMng():
+class ConfigMng:
     def __init__(self) -> None:
         self.tracker_name = ""
         self.tracker_config: dict = {}
@@ -16,7 +14,7 @@ class ConfigMng():
             self.load_tracker_config(self.base_config["tracker"])
         except FileNotFoundError:
             self.base_config = {}
-        
+
     def load_tracker_config(self, tracker_name: str) -> bool:
         self.tracker_name = ""
         try:

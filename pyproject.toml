@@ -18,7 +18,21 @@ dependencies = [
 dev = [
     "pyinstaller==6.1.0",
     "pip-licenses>=4.3.3,<5",
+    "ruff>=0.14.1",
 ]
 
 [tool.uv]
 package = false
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.ruff]
+lint.select = ["E", "F", "B", "I", "COM", "A", "UP", "Q", "SIM", "W"]
+lint.ignore = [
+    "E402",
+    "E501",
+    "SIM300",
+    "UP008",
+    "B905"
+]

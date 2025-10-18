@@ -6,13 +6,13 @@ from PIL import Image
 from const import APP_TITLE, APP_VERSION, ASSETS_DIR, COPY_RIGHT, LINK_COLOR
 
 
-class WelcomMessage():
+class WelcomMessage:
     def __init__(self, parent):
         self.frame = ctk.CTkScrollableFrame(parent, label_text="")
         self.frame.grid(row=0, column=1, sticky="nsew")
 
         # drag & drop text
-        image = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/folder_open_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"), 
+        image = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/folder_open_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"),
                              dark_image=Image.open(f"{ASSETS_DIR}/folder_open_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(40, 40))
         ctk.CTkLabel(self.frame, image=image, compound="left", padx=15, text="Open or Drag MIDI FILE here!", font=ctk.CTkFont(size=40, weight="bold")).pack(pady=(80, 50))
 
@@ -22,7 +22,7 @@ class WelcomMessage():
         donate_msg._label.bind("<Enter>", lambda e: donate_msg.configure(cursor="hand2"))
         donate_msg._label.bind("<Leave>", lambda e: donate_msg.configure(cursor="arrow"))
         donate_msg.pack(pady=10, anchor="n", side="top")
-        
+
         # project link
         project_link = ctk.CTkLabel(self.frame, text=APP_TITLE, text_color=LINK_COLOR)
         project_link._label.bind("<Button-1>", lambda e: webbrowser.open_new_tab("https://github.com/nai-kon/Midi-Image-Converter"))
@@ -31,7 +31,7 @@ class WelcomMessage():
         project_link.pack()
         ctk.CTkLabel(self.frame, text=f"Version {APP_VERSION}\n{COPY_RIGHT}").pack()
 
-        image = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/tooltip_2_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"), 
+        image = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/tooltip_2_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"),
                              dark_image=Image.open(f"{ASSETS_DIR}/tooltip_2_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(40, 40))
         ctk.CTkLabel(self.frame, image=image, compound="left", padx=15, text="Tips", font=ctk.CTkFont(size=40, weight="bold")).pack(pady=20, anchor="w")
 

@@ -1,6 +1,6 @@
-from .base import BaseConverter
-
 from config import ConfigMng
+
+from .base import BaseConverter
 
 
 class AmpicoA(BaseConverter):

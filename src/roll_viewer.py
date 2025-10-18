@@ -3,7 +3,7 @@ from PIL import Image
 
 Image.MAX_IMAGE_PIXELS = 10000000000
 
-class RollViewer():
+class RollViewer:
     def __init__(self, parent, width, height, image: Image.Image):
         self.scrollbar = ctk.CTkScrollbar(parent, orientation="vertical", command=self.on_scrollbar)
         self.scrollbar.grid(row=0, column=2, sticky="ns")
@@ -11,7 +11,7 @@ class RollViewer():
         self.orig_scaling_ratio = self.image_label._get_widget_scaling()
         self.image_label._set_scaling(new_window_scaling=1.0, new_widget_scaling=1.0)  # disable scaling on image.
         self.image_label.grid(row=0, column=1, sticky="nsew")
-        
+
         self.view_width = int(width * self.orig_scaling_ratio)
         self.view_height = int(height * self.orig_scaling_ratio)
 
@@ -19,7 +19,7 @@ class RollViewer():
 
         self.image_label.bind("<Configure>", self.on_resize)
         self.image_label.bind("<MouseWheel>", self.on_mousewheel)
-   
+
     def on_resize(self, event):
         view_height = event.height
         if view_height != self.view_height:
@@ -27,7 +27,7 @@ class RollViewer():
             self.view_height = view_height
             self.draw()
             self.update_scrollbar()
-    
+
     def set_image(self, image: Image.Image):
         self.offset_y = 0
         self.image = image
@@ -63,7 +63,7 @@ class RollViewer():
         self.clamp_offset()
         self.draw()
         self.update_scrollbar()
-    
+
     def on_mousewheel(self, event):
         self.offset_y -= event.delta * 2
         self.image_label.after(0, self.call_draw)
@@ -74,5 +74,5 @@ class RollViewer():
         elif args[0] == "scroll":
             lines = int(args[1])
             self.offset_y += lines * 30
-        
+
         self.image_label.after(0, self.call_draw)

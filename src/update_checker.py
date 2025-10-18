@@ -23,10 +23,10 @@ class UpdateMessage(ctk.CTkToplevel):
         self.title("New Release")
         self.grab_set()
 
-        image = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/campaign_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"), 
+        image = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/campaign_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"),
                         dark_image=Image.open(f"{ASSETS_DIR}/campaign_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
         ctk.CTkLabel(self, image=image, compound="left", padx=10, text=f"New Version {new_version} has been released!", font=ctk.CTkFont(size=20, weight="bold")).pack(expand=1)
-        
+
         link = ctk.CTkLabel(self, text="https://github.com/nai-kon/Midi-Image-Converter/releases", font=ctk.CTkFont(size=15, weight="bold"), text_color=LINK_COLOR)
         link._label.bind("<Button-1>", lambda e: webbrowser.open_new_tab("https://github.com/nai-kon/Midi-Image-Converter/releases"))
         link._label.bind("<Enter>", lambda e: link.configure(cursor="hand2"))
@@ -78,7 +78,7 @@ class NotifyUpdate:
         th = threading.Thread(target=check_func)
         th.start()
         return th
-    
+
 if __name__ == "__main__":
     import customtkinter as ctk
 

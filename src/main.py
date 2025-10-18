@@ -7,15 +7,14 @@ from tkinterdnd2 import DND_ALL
 
 from config import ConfigMng
 from const import APP_HEIGHT, APP_TITLE, APP_WIDTH, ASSETS_DIR
-from custom_widgets import (CustomScrollableFrame, MyCTkFloatInput,
-                            MyCTkIntInput, MyTk)
+from custom_widgets import CustomScrollableFrame, MyCTkFloatInput, MyCTkIntInput, MyTk
 from roll_viewer import RollViewer
 from tracker_bars.base import CONVERTER_CONFIG_PATHS, create_converter
 from update_checker import NotifyUpdate
 from welcome_message import WelcomMessage
 
 
-class MainFrame():
+class MainFrame:
     def __init__(self, parent) -> None:
         self.parent = parent
         self.midi_file_path = None
@@ -26,7 +25,7 @@ class MainFrame():
 
         # update check
         NotifyUpdate.check(self.conf)
-    
+
     def on_close(self, root):
         # save configs
         self.sync_conf()
@@ -108,7 +107,7 @@ class MainFrame():
             self.main_view.set_image(converter.out_img)
         else:
             self.main_view = RollViewer(self.parent, 900, 900, converter.out_img)
-        
+
         self.info_btn.pack(anchor="sw", side="left")
 
     def _open_file(self, path):
@@ -117,7 +116,7 @@ class MainFrame():
         # change app title
         name = os.path.basename(self.midi_file_path)
         self.parent.title(APP_TITLE + " - " + name)
-        self.convert() 
+        self.convert()
 
     def file_sel(self):
         if path:= ctk.filedialog.askopenfilename(title="Select a MIDI file", filetypes=[("MIDI file", "*.mid")], initialdir=self.conf.base_config["input_dir"]):
@@ -257,7 +256,7 @@ class MainFrame():
 
 if __name__ == "__main__":
     import sys
-    if sys.platform == "darwin" and getattr(sys, 'frozen', False):
+    if sys.platform == "darwin" and getattr(sys, "frozen", False):
         # change current directory for mac binary
         path = sys.argv[0].rsplit("PlaySK Midi to Piano Roll Image Converter.app")[0]
         os.chdir(path)
