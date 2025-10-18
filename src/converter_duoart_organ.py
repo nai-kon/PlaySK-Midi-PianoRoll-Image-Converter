@@ -17,10 +17,10 @@ class DuoArtOrgan(BaseConverter):
         self.roll_start_pad = 2
         self.roll_end_pad = 2
         self.roll_margin = conf.tracker_config["roll_side_margin"]
-        self.hole_width = conf.tracker_config["hole_width  # 0.053333 inch"]
+        self.hole_width = conf.tracker_config["hole_width"]  # 0.053333 inch
         self.chain_hole_spacing = conf.tracker_config["chain_perf_spacing"]
         self.single_hole_max_len = conf.tracker_config["single_hole_max_len"]
-        self.leftest_hole_center = conf.tracker_config["leftest_hole_center "] # 0.346666 inch
+        self.leftest_hole_center = conf.tracker_config["leftest_hole_center"]  # 0.346666 inch
         self.rightest_hole_center = conf.tracker_config["roll_width"] - conf.tracker_config["rightest_hole_center"]  # 0.346666 inch
         self.vertial_offset = 0.25  
         self.hole_num = 176
@@ -60,67 +60,67 @@ class DuoArtOrgan(BaseConverter):
         self.draw: ImageDraw | None = None
 
 
-class DuoArtOrganSetting:
+class DuoArtOrganSetting(CustomScrollableFrame):
     def __init__(self, parent: ctk.CTk, conf: ConfigMng) -> None:
-        self.dialog = CustomScrollableFrame(parent, fg_color=("#CCCCCC", "#111111"))
-        self.dialog.grid(row=0, column=0, sticky="nsew")    
+        super().__init__(parent)
+        self.grid(row=0, column=0, sticky="nsew")    
 
-        self.control_configs = conf.tracker_config.get("controls", {})
+        self.detailed_settings = conf.tracker_config.get("detailed_settings", {})
+        self.gui_objs: dict[str, dict[str, ctk.CTkEntry | ctk.CTkComboBox]] = {}
 
         row_no = 0
         col_no = 0
-        for key, val in self.control_configs.items():
+        for key, val in self.detailed_settings.items():
             if key == "Upper playing notes (Swell)":
                 row_no = 0
                 col_no = 3
 
             # label
             font = ctk.CTkFont(size=20)
-            section = ctk.CTkLabel(self.dialog, text=key, font=font)
+            section = ctk.CTkLabel(self, text=key, font=font)
             section.grid(row=row_no, column=col_no, columnspan=3, padx=5, pady=(30, 10))
             row_no += 1
 
             # MIDI Channel
-            ctk.CTkLabel(self.dialog, text="Midi Ch").grid(row=row_no, column=col_no, padx=5, pady=5)
-            tmp = ctk.CTkComboBox(self.dialog, values=[str(i) for i in range(16)], width=80)
+            ctk.CTkLabel(self, text="Midi Ch").grid(row=row_no, column=col_no, padx=5, pady=5)
+            tmp = ctk.CTkComboBox(self, values=[str(i) for i in range(16)], width=80)
             tmp.set(val["Midi Channel"])
             tmp.grid(row=row_no, column=col_no + 1, padx=5, pady=5)
-            self.control_configs[key]["Midi Channel"] = tmp
+            self.detailed_settings[key]["midi_ch_edit"] = tmp
             row_no += 1
 
             # header
             headers = ["Hole No", "Name", "MIDI Note No"]
             for i, text in enumerate(headers):
-                label = ctk.CTkLabel(self.dialog, text=text)
+                label = ctk.CTkLabel(self, text=text)
                 label.grid(row=row_no, column=col_no + i, padx=5, pady=5)
             row_no += 1
 
             for hole_name, val2 in val["Holes"].items():
                 # Hole No.
-                hole_label = ctk.CTkLabel(self.dialog, text=str(val2["hole_no"]))
+                hole_label = ctk.CTkLabel(self, text=str(val2["hole_no"]))
                 hole_label.grid(row=row_no, column=col_no, padx=5, pady=2)
 
                 # Name
-                name_entry = ctk.CTkLabel(self.dialog, text=hole_name)
+                name_entry = ctk.CTkLabel(self, text=hole_name)
                 name_entry.grid(row=row_no, column=col_no + 1, padx=5, pady=2)
 
                 # Note Number
-                tmp = MyCTkIntInput(self.dialog, width=50)
+                tmp = MyCTkIntInput(self, width=50)
                 tmp.insert(0, val2["midi_note_no"])
                 tmp.grid(row=row_no, column=col_no + 2, padx=5, pady=2)
-                self.control_configs[key]["Holes"][hole_name]["midi_note_no_edit"] = tmp
-
+                self.detailed_settings[key]["Holes"][hole_name]["midi_noteno_edit"] = tmp
                 row_no += 1
 
-        dark_mode_btn = ctk.CTkButton(self.dialog, text="commit", width=20, command=self.debug)
-        dark_mode_btn.grid(row=row_no, column=0, padx=5, pady=5)
+    def destroy(self):
+        for key, val in self.detailed_settings.items():
+            self.detailed_settings[key]["Midi Channel"] = int(val["midi_ch_edit"].get())
+            self.detailed_settings[key].pop("midi_ch_edit")
 
-    def debug(self):
-        # debug
-        for row_pos, val in self.control_configs.items():
             for hole_name, val2 in val["Holes"].items():
-                print(hole_name, val2["midi_note_no_edit"].get())
-
+                self.detailed_settings[key]["Holes"][hole_name]["midi_note_no"] = int(val2["midi_noteno_edit"].get())
+                self.detailed_settings[key]["Holes"][hole_name].pop("midi_noteno_edit")
+        super().destroy()
 
 if __name__ == "__main__":
     app = ctk.CTk()

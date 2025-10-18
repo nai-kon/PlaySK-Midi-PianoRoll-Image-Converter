@@ -11,7 +11,7 @@
     "shorten_len": 5,
     "compensate_accel": true,
     "accel_rate": 0.1,
-    "controls": {
+    "detailed_settings": {
         "Lower playing notes (Great)": {
             "Midi Channel": 0,
             "Holes": {

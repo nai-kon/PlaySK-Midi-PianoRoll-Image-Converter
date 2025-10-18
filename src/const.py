@@ -10,8 +10,8 @@ ASSETS_DIR = "playsk_midi_to_roll_image_converter_assets"
 BASE_CONFIG_PATH = os.path.join(ASSETS_DIR, "config.json")
 CONVERTER_CONFIG_PATHS = {
     "88-Note": os.path.join(ASSETS_DIR, "88-note config.json"), 
-    "AmpicoA": os.path.join(ASSETS_DIR, "AmpicoA config.json"), 
-    "AmpicoB": os.path.join(ASSETS_DIR, "AmpicoB config.json"), 
+    "Ampico A": os.path.join(ASSETS_DIR, "Ampico A config.json"), 
+    "Ampico B": os.path.join(ASSETS_DIR, "Ampico B config.json"), 
     "Aeolian 176-note": os.path.join(ASSETS_DIR, "Aeolian 176-note config.json"),
 }
                   

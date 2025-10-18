@@ -36,21 +36,55 @@ class MainFrame():
     def sync_conf(self):
         # self.conf.dark_mode will be set by change_dark_light_mode()
         # self.conf.input_dir will be set by file_sel()
-        # self.conf.output_dir will be set by filsave_imagee_sel()
+        # self.conf.output_dir will be set by filsave_image_sel()
         self.conf.base_config["tracker"] = self.tracker_bar.get()
-        self.conf.tracker_config["tempo"] =int(self.tempo_slider.get())
-        self.conf.tracker_config["dpi"] =int(self.roll_dpi.get())
-        self.conf.tracker_config["roll_width"] =float(self.roll_width.get())
-        self.conf.tracker_config["leftest_hole_center"] =float(self.leftest_hole_center.get())
-        self.conf.tracker_config["rightest_hole_center"] =float(self.rightest_hole_center.get())
-        self.conf.tracker_config["roll_side_margin"] =float(self.roll_side_margin.get())
-        self.conf.tracker_config["hole_width"] =float(self.hole_width.get())
-        self.conf.tracker_config["single_hole_max_len"] =float(self.single_hole_max_len.get())
-        self.conf.tracker_config["chain_perf_spacing"] =float(self.chain_perf_spacing.get())
-        self.conf.tracker_config["shorten_len"] =int(self.shorten_len.get())
-        self.conf.tracker_config["compensate_accel"] =bool(self.compensate_accel.get())
-        self.conf.tracker_config["accel_rate"] =float(self.accel_rate.get())
+        self.conf.tracker_config["tempo"] = int(self.tempo_slider.get())
+        self.conf.tracker_config["dpi"] = int(self.roll_dpi.get())
+        self.conf.tracker_config["roll_width"] = float(self.roll_width.get())
+        self.conf.tracker_config["leftest_hole_center"] = float(self.leftest_hole_center.get())
+        self.conf.tracker_config["rightest_hole_center"] = float(self.rightest_hole_center.get())
+        self.conf.tracker_config["roll_side_margin"] = float(self.roll_side_margin.get())
+        self.conf.tracker_config["hole_width"] = float(self.hole_width.get())
+        self.conf.tracker_config["single_hole_max_len"] = float(self.single_hole_max_len.get())
+        self.conf.tracker_config["chain_perf_spacing"] = float(self.chain_perf_spacing.get())
+        self.conf.tracker_config["shorten_len"] = int(self.shorten_len.get())
+        self.conf.tracker_config["compensate_accel"] = bool(self.compensate_accel.get())
+        self.conf.tracker_config["accel_rate"] = float(self.accel_rate.get())
         # self.conf.update_notified_version will be set by NotifyUpdate.check()
+
+        self.conf.save_config()
+
+    def change_tracker(self, dummy=None):
+        self.conf.load_tracker_config(self.tracker_bar.get())
+
+        self.tempo_label.configure(text=f"Tempo:{self.conf.tracker_config['tempo']}")
+        self.tempo_slider.set(self.conf.tracker_config["tempo"])
+        self.roll_dpi.delete(0, ctk.END)
+        self.roll_dpi.insert(0, self.conf.tracker_config["dpi"])
+        self.roll_width.delete(0, ctk.END)
+        self.roll_width.insert(0, self.conf.tracker_config["roll_width"])
+        self.leftest_hole_center.delete(0, ctk.END)
+        self.leftest_hole_center.insert(0, self.conf.tracker_config["leftest_hole_center"])
+        self.rightest_hole_center.delete(0, ctk.END)
+        self.rightest_hole_center.insert(0, self.conf.tracker_config["rightest_hole_center"])
+        self.roll_side_margin.delete(0, ctk.END)
+        self.roll_side_margin.insert(0, self.conf.tracker_config["roll_side_margin"])
+        self.hole_width.delete(0, ctk.END)
+        self.hole_width.insert(0, self.conf.tracker_config["hole_width"])
+        self.single_hole_max_len.delete(0, ctk.END)
+        self.single_hole_max_len.insert(0, self.conf.tracker_config["single_hole_max_len"])
+        self.chain_perf_spacing.delete(0, ctk.END)
+        self.chain_perf_spacing.insert(0, self.conf.tracker_config["chain_perf_spacing"])
+        self.shorten_len.delete(0, ctk.END)
+        self.shorten_len.insert(0, self.conf.tracker_config["shorten_len"])
+        self.compensate_accel.select() if self.conf.tracker_config["compensate_accel"] else self.compensate_accel.deselect()
+        self.accel_rate.delete(0, ctk.END)
+        self.accel_rate.insert(0, self.conf.tracker_config["accel_rate"])
+
+        if self.tracker_bar.get() == "Aeolian 176-note":
+            self.detailed_setting_btn.pack(anchor="sw", side="left")
+        else:
+            self.detailed_setting_btn.pack_forget()
 
     def change_dark_light_mode(self, change_state: bool = True) -> None:
         if change_state:
@@ -58,11 +92,10 @@ class MainFrame():
         ctk.set_appearance_mode("Dark" if self.conf.base_config["dark_mode"] else "Light")
 
     def convert(self) -> None:
+        self.sync_conf()
         if self.midi_file_path is None:
             return
 
-        self.sync_conf()
-        self.conf.load_tracker_config(self.tracker_bar.get())
         converter = create_converter(self.tracker_bar.get(), self.conf)
         res = converter.convert(self.midi_file_path)
         if not res:
@@ -124,10 +157,19 @@ class MainFrame():
         ctk.CTkLabel(msgbox, text=f"Height: {img_h} px ", font=font).pack(padx=10, pady=5, anchor="w")
         ctk.CTkLabel(msgbox, text=f"Length: {length:.1f} ft ({length * 0.3048:.1f} m) @{dpi}DPI", font=font).pack(padx=10, pady=5, anchor="w")
 
-    def change_trakcer(self):
-        self.sync_conf()
+    def show_detailed_settings(self):
+        from converter_duoart_organ import DuoArtOrganSetting
 
-        TODO UIにconfの値を反映。convert実行
+        # show modal window for detailed settings
+        detail_win = ctk.CTkToplevel()
+        detail_win.geometry("650x600")
+        detail_win.title("Aeolian 176-note Tracker Hole Settings")
+        detail_win.grid_columnconfigure(0, weight=1)
+        detail_win.grid_rowconfigure(0, weight=1)
+        detail_win.grab_set()
+        DuoArtOrganSetting(detail_win, self.conf)
+        self.parent.wait_window(detail_win)
+        print(self.conf.tracker_config)
 
     def create_sidebar(self):
         def on_change(value=None) -> None:
@@ -142,72 +184,59 @@ class MainFrame():
         self.fileopen.pack(padx=10, pady=(10, 0), anchor="w", fill="both")
 
         ctk.CTkLabel(sidebar, text="Tracker Bar").pack(padx=10, anchor="w")
-        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=tuple(CONVERTER_CONFIG_PATHS.keys()), command=on_change)
+        self.tracker_bar = ctk.CTkOptionMenu(sidebar, values=tuple(CONVERTER_CONFIG_PATHS.keys()), command=self.change_tracker)
         self.tracker_bar.set(self.conf.base_config["tracker"])
         self.tracker_bar.pack(padx=10, anchor="w", fill="both")
 
-        self.tempo_label = ctk.CTkLabel(sidebar, text=f"Tempo:{self.conf.tracker_config['tempo']}")
+        self.tempo_label = ctk.CTkLabel(sidebar)
         self.tempo_label.pack(padx=10, anchor="w")
         self.tempo_slider = ctk.CTkSlider(sidebar, from_=30, to=140, number_of_steps=(140 - 30) / 5,  # interval of 5
                                           command=lambda e: self.tempo_label.configure(text=f"Tempo:{e:.0f}"))
-        self.tempo_slider.set(self.conf.tracker_config["tempo"])
         self.tempo_slider.pack(padx=10, anchor="w")
         self.tempo_slider.bind("<ButtonRelease-1>", on_change)
 
         ctk.CTkLabel(sidebar, text="Output Image DPI").pack(padx=10, anchor="w")
         self.roll_dpi = MyCTkIntInput(sidebar, on_change)
-        self.roll_dpi.insert(0, self.conf.tracker_config["dpi"])
         self.roll_dpi.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Roll width (inch)").pack(padx=10, anchor="w")
         self.roll_width = MyCTkFloatInput(sidebar, on_change)
-        self.roll_width.insert(0, self.conf.tracker_config["roll_width"])
         self.roll_width.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Hole 0 center position (inch)").pack(padx=10, anchor="w")
         self.leftest_hole_center = MyCTkFloatInput(sidebar, on_change)
-        self.leftest_hole_center.insert(0, self.conf.tracker_config["leftest_hole_center"])
         self.leftest_hole_center.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Hole 99 center position (inch)").pack(padx=10, anchor="w")
         self.rightest_hole_center = MyCTkFloatInput(sidebar, on_change)
-        self.rightest_hole_center.insert(0, self.conf.tracker_config["rightest_hole_center"])
         self.rightest_hole_center.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Margins on roll sides (inch)").pack(padx=10, anchor="w")
         self.roll_side_margin = MyCTkFloatInput(sidebar, on_change)
-        self.roll_side_margin.insert(0, self.conf.tracker_config["roll_side_margin"])
         self.roll_side_margin.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Hole width (inch)").pack(padx=10, anchor="w")
         self.hole_width = MyCTkFloatInput(sidebar, on_change)
-        self.hole_width.insert(0, self.conf.tracker_config["hole_width"])
         self.hole_width.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Single hole max length (inch)").pack(padx=10, anchor="w")
         self.single_hole_max_len = MyCTkFloatInput(sidebar, on_change)
-        self.single_hole_max_len.insert(0, self.conf.tracker_config["single_hole_max_len"])
         self.single_hole_max_len.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Chain hole spacing (inch)").pack(padx=10, anchor="w")
         self.chain_perf_spacing = MyCTkFloatInput(sidebar, on_change)
-        self.chain_perf_spacing.insert(0, self.conf.tracker_config["chain_perf_spacing"])
         self.chain_perf_spacing.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Shorten hole length (px)").pack(padx=10, anchor="w")
         self.shorten_len = MyCTkIntInput(sidebar, on_change)
-        self.shorten_len.insert(0, self.conf.tracker_config["shorten_len"])
         self.shorten_len.pack(padx=10, anchor="w")
 
         self.compensate_accel = ctk.CTkSwitch(sidebar, text="Compensate Acceleration", command=on_change)
-        if self.conf.tracker_config["compensate_accel"]:
-            self.compensate_accel.select()
         self.compensate_accel.pack(padx=10, pady=(10, 0), anchor="w")
 
         self.acceleration_rate_label = ctk.CTkLabel(sidebar, text="Acceleration rate (%/feet)")
         self.acceleration_rate_label.pack(padx=25, anchor="w")
         self.accel_rate = MyCTkFloatInput(sidebar, on_change)
-        self.accel_rate.insert(0, self.conf.tracker_config["accel_rate"])
         self.accel_rate.pack(padx=25, anchor="w")
 
         btnimg = ctk.CTkImage(Image.open(f"{ASSETS_DIR}/download_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
@@ -223,6 +252,11 @@ class MainFrame():
                                         dark_image=Image.open(f"{ASSETS_DIR}/info_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
         self.info_btn = ctk.CTkButton(sidebar, text="", width=20, fg_color="transparent", hover_color=("gray70", "gray30"), image=btnimg, command=self.show_image_info)
 
+        btnimg = ctk.CTkImage(light_image=Image.open(f"{ASSETS_DIR}/settings_256dp_000000_FILL0_wght400_GRAD0_opsz48.png"),
+                                        dark_image=Image.open(f"{ASSETS_DIR}/settings_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(20, 20))
+        self.detailed_setting_btn = ctk.CTkButton(sidebar, text="", width=20, fg_color="transparent", hover_color=("gray70", "gray30"), image=btnimg, command=self.show_detailed_settings)
+
+        self.change_tracker()
 
 if __name__ == "__main__":
     import sys
