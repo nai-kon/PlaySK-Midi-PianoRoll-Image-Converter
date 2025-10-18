@@ -1,42 +1,44 @@
 import json
 import os
+import glob
 
-from pydantic import BaseModel
+from const import BASE_CONFIG_PATH, CONVERTER_CONFIG_PATHS
 
-from const import ASSETS_DIR
 
-CONFIG_PATH = os.path.join(ASSETS_DIR, "config.json")
+class ConfigMng():
+    def __init__(self) -> None:
+        self.tracker_name = ""
+        self.tracker_config: dict = {}
 
-class ConfigMng(BaseModel):
-    dark_mode: bool =  True
-    input_dir: str = ""
-    output_dir: str = ""
-    tracker: str = "88-Note"
-    tempo: int = 80
-    dpi: int = 300
-    roll_width: float = 11.25
-    leftest_hole_center: float = 0.14
-    rightest_hole_center: float = 0.14
-    roll_side_margin: float = 0.25
-    hole_width: float = 0.07
-    single_hole_max_len: float = 0.4
-    chain_perf_spacing: float = 0.035
-    shorten_len: int = 10
-    compensate_accel: bool = True
-    accel_rate: float = 0.18
-    update_notified_version: str = ""
-    
-    def __init__(self):
         try:
-            with open(CONFIG_PATH, encoding="utf-8") as f:
-                data = json.load(f)
+            with open(BASE_CONFIG_PATH, encoding="utf-8") as f:
+                self.base_config = json.load(f)
+            self.load_tracker_config(self.base_config["tracker"])
         except FileNotFoundError:
-            data = {}
-        super().__init__(**data)
+            self.base_config = {}
+        
+    def load_tracker_config(self, tracker_name: str) -> bool:
+        self.tracker_name = ""
+        try:
+            path = CONVERTER_CONFIG_PATHS.get(tracker_name, "")
+            with open(path, encoding="utf-8") as f:
+                self.tracker_config = json.load(f)
+            self.tracker_name = tracker_name
+        except FileNotFoundError:
+            self.tracker_config = {}
+            return False
+        return True
 
-    def save_config(self):
-        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
-            f.write(self.model_dump_json(indent=4))
+    def save_config(self) -> None:
+        try:
+            with open(BASE_CONFIG_PATH, "w", encoding="utf-8") as f:
+                json.dump(self.base_config, f, ensure_ascii=False, indent=4)
+
+            path = CONVERTER_CONFIG_PATHS.get(self.tracker_name, "")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(self.tracker_config, f, ensure_ascii=False, indent=4)
+        except FileNotFoundError:
+            pass
 
 if __name__ == "__main__":
     obj = ConfigMng()

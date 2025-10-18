@@ -1,19 +1,7 @@
 {
     "dark_mode": true,
-    "input_dir": "",
-    "output_dir": "",
-    "tracker": "88-Note",
-    "tempo": 80,
-    "dpi": 300,
-    "roll_width": 11.25,
-    "hole_0_center": 0.14,
-    "hole_99_center": 0.14,
-    "roll_side_margin": 0.25,
-    "hole_width": 0.07,
-    "single_hole_max_len": 0.4,
-    "chain_perf_spacing": 0.035,
-    "shorten_len": 10,
-    "compensate_accel": true,
-    "accel_rate": 0.18,
+    "input_dir": "C:/Users/sasaki/Documents",
+    "output_dir": "C:/Users/sasaki/Downloads",
+    "tracker": "Aeolian 176-note",
     "update_notified_version": "1.1.0"
 }

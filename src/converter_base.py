@@ -6,24 +6,24 @@ from PIL import Image, ImageDraw
 
 from config import ConfigMng
 
-CONVERTER_LIST = ["88-Note", "AmpicoA", "AmpicoB", "Aeolian 176-note"]
+from const import CONVERTER_CONFIG_PATHS
 
 class BaseConverter:
     """88-note class for MIDI to Image conversion."""
     def __init__(self, conf: ConfigMng) -> None:
-        self.roll_dpi = conf.dpi
-        self.roll_tempo = conf.tempo
-        self.roll_accelerate_rate_ft = float(conf.accel_rate) / 100 if conf.compensate_accel else 0
+        self.roll_dpi = conf.tracker_config["dpi"]
+        self.roll_tempo = conf.tracker_config["tempo"]
+        self.roll_accelerate_rate_ft = float(conf.tracker_config["accel_rate"]) / 100 if conf.tracker_config["compensate_accel"] else 0
 
         # in inches
         self.roll_start_pad = 2
         self.roll_end_pad = 2
-        self.roll_margin = conf.roll_side_margin
-        self.hole_width = conf.hole_width
-        self.chain_hole_spacing = conf.chain_perf_spacing
-        self.single_hole_max_len = conf.single_hole_max_len
-        self.leftest_hole_center = conf.leftest_hole_center
-        self.rightest_hole_center = conf.roll_width - conf.rightest_hole_center
+        self.roll_margin = conf.tracker_config["roll_side_margin"]
+        self.hole_width = conf.tracker_config["hole_width"]
+        self.chain_hole_spacing = conf.tracker_config["chain_perf_spacing"]
+        self.single_hole_max_len = conf.tracker_config["single_hole_max_len"]
+        self.leftest_hole_center = conf.tracker_config["leftest_hole_center"]
+        self.rightest_hole_center = conf.tracker_config["roll_width"] - conf.tracker_config["rightest_hole_center"]
         self.hole_num = 100
         self.roll_color = 120  # in grayscale
 
@@ -36,11 +36,11 @@ class BaseConverter:
         self.roll_start_pad_px = int(self.roll_dpi * self.roll_start_pad)
         self.roll_end_pad_px = int(self.roll_dpi * self.roll_end_pad)
         self.roll_margin_px = int(self.roll_dpi * self.roll_margin)
-        self.roll_width_px = int(self.roll_dpi * conf.roll_width)
+        self.roll_width_px = int(self.roll_dpi * conf.tracker_config["roll_width"])
         self.hole_width_px = int(self.roll_dpi * self.hole_width)
         self.chain_perforation_spacing_px = int(self.roll_dpi * self.chain_hole_spacing)
         self.single_hole_max_len_px = int(self.roll_dpi * self.single_hole_max_len)
-        self.shorten_hole_px = conf.shorten_len
+        self.shorten_hole_px = conf.tracker_config["shorten_len"]
 
         self.control_change_map = [
             {"controlChangeNo": 64, "midiNoteNo": 18},
@@ -162,16 +162,17 @@ class BaseConverter:
 
 def create_converter(name: str, conf: ConfigMng) -> BaseConverter:
     """Simple factory method of converter class"""
-    if name == CONVERTER_LIST[1]:
+    convert_name = tuple(CONVERTER_CONFIG_PATHS.keys())
+    if name == convert_name[1]:
         from converter_ampico import AmpicoA
         return AmpicoA(conf)
-    if name == CONVERTER_LIST[2]:
+    if name == convert_name[2]:
         from converter_ampico import AmpicoB
         return AmpicoB(conf)
-    elif name == CONVERTER_LIST[3]:
+    elif name == convert_name[3]:
         from converter_duoart_organ import DuoArtOrgan
         return DuoArtOrgan(conf)
-    elif name == CONVERTER_LIST[0]:
+    elif name == convert_name[0]:
         return BaseConverter(conf)
     else:
         raise ValueError(f"Unknown converter type: {name}")

@@ -60,9 +60,9 @@ class NotifyUpdate:
         return ver
 
     def need_notify(self, ver: str | None) -> bool:
-        print(ver, self.conf.update_notified_version, APP_VERSION)
+        print(ver, self.conf.base_config["update_notified_version"], APP_VERSION)
         return (ver is not None and
-            ver > self.conf.update_notified_version and
+            ver > self.conf.base_config["update_notified_version"] and
             ver > APP_VERSION)
 
     @classmethod
@@ -73,7 +73,7 @@ class NotifyUpdate:
             if obj.need_notify(latest_ver):
                 time.sleep(obj.msg_show_delay)
                 UpdateMessage(latest_ver)
-                obj.conf.update_notified_version = latest_ver
+                obj.conf.base_config["update_notified_version"] = latest_ver
 
         th = threading.Thread(target=check_func)
         th.start()
@@ -85,6 +85,6 @@ if __name__ == "__main__":
     app = ctk.CTk()
     conf = ConfigMng()
     NotifyUpdate.check(conf)
-    conf.save_config()
 
     app.mainloop()
+    conf.save_config()
