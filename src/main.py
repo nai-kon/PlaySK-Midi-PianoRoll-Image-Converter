@@ -160,22 +160,20 @@ class MainFrame():
         ctk.CTkLabel(msgbox, text=f"Length: {length:.1f} ft ({length * 0.3048:.1f} m) @{dpi}DPI", font=font).pack(padx=10, pady=5, anchor="w")
 
     def show_detailed_settings(self):
-        from converter_duoart_organ import DuoArtOrganSetting
+        from tracker_bars.duoart_organ import DuoArtOrganSetting
 
         # show modal window for detailed settings
         detail_win = ctk.CTkToplevel()
         detail_win.geometry("650x600")
-        detail_win.title("Aeolian 176-note Tracker Hole Settings")
+        detail_win.title("Aeolian 176-note MIDI Settings")
         detail_win.grid_columnconfigure(0, weight=1)
         detail_win.grid_rowconfigure(0, weight=1)
         detail_win.grab_set()
         DuoArtOrganSetting(detail_win, self.conf)
         self.parent.wait_window(detail_win)
-        print(self.conf.tracker_config)
 
     def create_sidebar(self):
         sidebar = CustomScrollableFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
-        # sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         sidebar.grid(row=0, column=0, sticky="nsew")
 
         btnimg = ctk.CTkImage(Image.open(f"{ASSETS_DIR}/folder_open_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))

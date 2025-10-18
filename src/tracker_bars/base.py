@@ -54,8 +54,8 @@ class BaseConverter:
         }
 
         self.hole_x_list = [self._get_hole_x(i) for i in range(128)]
-        self.out_img: Image.Image | None = None
-        self.draw: ImageDraw | None = None
+        self.out_img: Image.Image
+        self.draw: ImageDraw.ImageDraw
 
     def get_roll_acceleration_rate(self, px: float) -> float:
         cur_feet = px / self.roll_dpi / 12.0
@@ -104,13 +104,12 @@ class BaseConverter:
         self.draw.rounded_rectangle([hole_x, y, hole_x + self.hole_width_px, hole_y1], radius=self.hole_width_px // 2, fill=255)
 
     def convert(self, midi_path: str) -> bool:
-        # try:
-        if True:
+        try:
             mid = mido.MidiFile(midi_path)
             ppq = mid.ticks_per_beat
             bpm = 80.0
 
-            note_on_ticks: list[int | None] = [0] * 512
+            note_on_ticks: list[int] = [0] * 512
             initialized = False
             total_ticks = 0
             for track in mid.tracks:
@@ -141,9 +140,9 @@ class BaseConverter:
                             mapped_note_no = self.control_change_map[msg.control]
                             if msg.value > 0:
                                 note_on_ticks[mapped_note_no] = abs_tick
-                            elif note_on_ticks[mapped_note_no] is not None:
+                            elif note_on_ticks[mapped_note_no] != -1:
                                 self.draw_hole(mapped_note_no, self.roll_tempo, bpm, ppq, note_on_ticks[mapped_note_no], abs_tick)
-                                note_on_ticks[mapped_note_no] = None  # some midi has error, msg.value=0 multiple time. So, ignore it.
+                                note_on_ticks[mapped_note_no] = -1  # some midi has error, msg.value=0 multiple time. So, ignore it.
 
                         if msg.type == "note_on" and msg.velocity > 0:
                             note_no = self.custom_note_map.get(msg.channel, {}).get(msg.note, msg.note)
@@ -152,9 +151,9 @@ class BaseConverter:
                             note_no = self.custom_note_map.get(msg.channel, {}).get(msg.note, msg.note)
                             self.draw_hole(note_no, self.roll_tempo, bpm, ppq, note_on_ticks[note_no], abs_tick)
 
-        # except Exception as e:
-        #     print(e)
-        #     return False
+        except Exception as e:
+            print(e)
+            return False
 
         return True
             

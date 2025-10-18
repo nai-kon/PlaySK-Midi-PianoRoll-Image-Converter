@@ -1,8 +1,9 @@
 import customtkinter as ctk
-from .base import BaseConverter
 
 from config import ConfigMng
 from custom_widgets import CustomScrollableFrame, MyCTkIntInput
+
+from .base import BaseConverter
 
 
 class DuoArtOrgan(BaseConverter):
@@ -93,18 +94,3 @@ class DuoArtOrganSetting(CustomScrollableFrame):
                 self.detailed_settings[key]["Holes"][hole_name]["midi_note_no"] = int(val2["midi_noteno_edit"].get())
                 self.detailed_settings[key]["Holes"][hole_name].pop("midi_noteno_edit")
         super().destroy()
-
-if __name__ == "__main__":
-    app = ctk.CTk()
-    app.geometry("650x600")
-
-    app.grid_columnconfigure(0, weight=1)  #
-    app.grid_rowconfigure(0, weight=1)
-
-    conf = ConfigMng()
-    conf.load_tracker_config("Aeolian 176-note")
-
-    DuoArtOrganSetting(app, conf)
-
-
-    app.mainloop()
