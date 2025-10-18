@@ -5,8 +5,8 @@ import mido
 from PIL import Image, ImageDraw
 
 from config import ConfigMng
-
 from const import CONVERTER_CONFIG_PATHS
+
 
 class BaseConverter:
     """88-note class for MIDI to Image conversion."""
@@ -42,12 +42,15 @@ class BaseConverter:
         self.single_hole_max_len_px = int(self.roll_dpi * self.single_hole_max_len)
         self.shorten_hole_px = conf.tracker_config["shorten_len"]
 
-        self.control_change_map = [
-            {"controlChangeNo": 64, "midiNoteNo": 18},
-            {"controlChangeNo": 67, "midiNoteNo": 113},
-        ]
+        self.control_change_map: dict[int, int] = {
+            # control_change_number: midiNoteNo
+            64: 18,
+            67: 113,
+        }
 
         self.custom_note_map: dict[int, dict[int, int]] = {
+            # channel_no: {original_note_number: new_note_number, ...}, 
+            # not used in 88-note
         }
 
         self.hole_x_list = [self._get_hole_x(i) for i in range(128)]
@@ -134,13 +137,13 @@ class BaseConverter:
                         initialized = True
 
                     if msg.type in ("note_on", "note_off", "control_change"):
-                        for map in self.control_change_map:
-                            if msg.type == "control_change" and msg.control == map["controlChangeNo"]:
-                                if msg.value > 0:
-                                    note_on_ticks[map["midiNoteNo"]] = abs_tick
-                                elif note_on_ticks[map["midiNoteNo"]] is not None:
-                                    self.draw_hole(map["midiNoteNo"], self.roll_tempo, bpm, ppq, note_on_ticks[map["midiNoteNo"]], abs_tick)
-                                    note_on_ticks[map["midiNoteNo"]] = None  # some midi has error, msg.value=0 multiple time. So, ignore it.
+                        if msg.type == "control_change" and msg.control in self.control_change_map:
+                            mapped_note_no = self.control_change_map[msg.control]
+                            if msg.value > 0:
+                                note_on_ticks[mapped_note_no] = abs_tick
+                            elif note_on_ticks[mapped_note_no] is not None:
+                                self.draw_hole(mapped_note_no, self.roll_tempo, bpm, ppq, note_on_ticks[mapped_note_no], abs_tick)
+                                note_on_ticks[mapped_note_no] = None  # some midi has error, msg.value=0 multiple time. So, ignore it.
 
                         if msg.type == "note_on" and msg.velocity > 0:
                             note_no = self.custom_note_map.get(msg.channel, {}).get(msg.note, msg.note)
@@ -164,13 +167,13 @@ def create_converter(name: str, conf: ConfigMng) -> BaseConverter:
     """Simple factory method of converter class"""
     convert_name = tuple(CONVERTER_CONFIG_PATHS.keys())
     if name == convert_name[1]:
-        from converter_ampico import AmpicoA
+        from tracker_bars.ampico import AmpicoA
         return AmpicoA(conf)
     if name == convert_name[2]:
-        from converter_ampico import AmpicoB
+        from tracker_bars.ampico import AmpicoB
         return AmpicoB(conf)
     elif name == convert_name[3]:
-        from converter_duoart_organ import DuoArtOrgan
+        from tracker_bars.duoart_organ import DuoArtOrgan
         return DuoArtOrgan(conf)
     elif name == convert_name[0]:
         return BaseConverter(conf)

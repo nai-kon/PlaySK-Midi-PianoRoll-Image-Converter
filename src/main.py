@@ -7,10 +7,10 @@ from tkinterdnd2 import DND_ALL
 
 from config import ConfigMng
 from const import APP_HEIGHT, APP_TITLE, APP_WIDTH, ASSETS_DIR
-from converter_base import CONVERTER_CONFIG_PATHS, create_converter
 from custom_widgets import (CustomScrollableFrame, MyCTkFloatInput,
                             MyCTkIntInput, MyTk)
 from roll_viewer import RollViewer
+from tracker_bars.base import CONVERTER_CONFIG_PATHS, create_converter
 from update_checker import NotifyUpdate
 from welcome_message import WelcomMessage
 
@@ -18,10 +18,10 @@ from welcome_message import WelcomMessage
 class MainFrame():
     def __init__(self, parent) -> None:
         self.parent = parent
+        self.midi_file_path = None
         self.conf = ConfigMng()
         self.create_sidebar()
         self.main_view: RollViewer | WelcomMessage = WelcomMessage(self.parent)
-        self.midi_file_path = None
         self.change_dark_light_mode(change_state=False)
 
         # update check
@@ -86,12 +86,14 @@ class MainFrame():
         else:
             self.detailed_setting_btn.pack_forget()
 
+        self.convert()
+
     def change_dark_light_mode(self, change_state: bool = True) -> None:
         if change_state:
             self.conf.base_config["dark_mode"] = not self.conf.base_config["dark_mode"]
         ctk.set_appearance_mode("Dark" if self.conf.base_config["dark_mode"] else "Light")
 
-    def convert(self) -> None:
+    def convert(self, arg=None) -> None:
         self.sync_conf()
         if self.midi_file_path is None:
             return
@@ -172,9 +174,6 @@ class MainFrame():
         print(self.conf.tracker_config)
 
     def create_sidebar(self):
-        def on_change(value=None) -> None:
-            self.convert()  # update image when option menu changes
-
         sidebar = CustomScrollableFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         # sidebar = ctk.CTkFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
         sidebar.grid(row=0, column=0, sticky="nsew")
@@ -193,50 +192,50 @@ class MainFrame():
         self.tempo_slider = ctk.CTkSlider(sidebar, from_=30, to=140, number_of_steps=(140 - 30) / 5,  # interval of 5
                                           command=lambda e: self.tempo_label.configure(text=f"Tempo:{e:.0f}"))
         self.tempo_slider.pack(padx=10, anchor="w")
-        self.tempo_slider.bind("<ButtonRelease-1>", on_change)
+        self.tempo_slider.bind("<ButtonRelease-1>", self.convert)
 
         ctk.CTkLabel(sidebar, text="Output Image DPI").pack(padx=10, anchor="w")
-        self.roll_dpi = MyCTkIntInput(sidebar, on_change)
+        self.roll_dpi = MyCTkIntInput(sidebar, self.convert)
         self.roll_dpi.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Roll width (inch)").pack(padx=10, anchor="w")
-        self.roll_width = MyCTkFloatInput(sidebar, on_change)
+        self.roll_width = MyCTkFloatInput(sidebar, self.convert)
         self.roll_width.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Hole 0 center position (inch)").pack(padx=10, anchor="w")
-        self.leftest_hole_center = MyCTkFloatInput(sidebar, on_change)
+        self.leftest_hole_center = MyCTkFloatInput(sidebar, self.convert)
         self.leftest_hole_center.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Hole 99 center position (inch)").pack(padx=10, anchor="w")
-        self.rightest_hole_center = MyCTkFloatInput(sidebar, on_change)
+        self.rightest_hole_center = MyCTkFloatInput(sidebar, self.convert)
         self.rightest_hole_center.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Margins on roll sides (inch)").pack(padx=10, anchor="w")
-        self.roll_side_margin = MyCTkFloatInput(sidebar, on_change)
+        self.roll_side_margin = MyCTkFloatInput(sidebar, self.convert)
         self.roll_side_margin.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Hole width (inch)").pack(padx=10, anchor="w")
-        self.hole_width = MyCTkFloatInput(sidebar, on_change)
+        self.hole_width = MyCTkFloatInput(sidebar, self.convert)
         self.hole_width.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Single hole max length (inch)").pack(padx=10, anchor="w")
-        self.single_hole_max_len = MyCTkFloatInput(sidebar, on_change)
+        self.single_hole_max_len = MyCTkFloatInput(sidebar, self.convert)
         self.single_hole_max_len.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Chain hole spacing (inch)").pack(padx=10, anchor="w")
-        self.chain_perf_spacing = MyCTkFloatInput(sidebar, on_change)
+        self.chain_perf_spacing = MyCTkFloatInput(sidebar, self.convert)
         self.chain_perf_spacing.pack(padx=10, anchor="w")
 
         ctk.CTkLabel(sidebar, text="Shorten hole length (px)").pack(padx=10, anchor="w")
-        self.shorten_len = MyCTkIntInput(sidebar, on_change)
+        self.shorten_len = MyCTkIntInput(sidebar, self.convert)
         self.shorten_len.pack(padx=10, anchor="w")
 
-        self.compensate_accel = ctk.CTkSwitch(sidebar, text="Compensate Acceleration", command=on_change)
+        self.compensate_accel = ctk.CTkSwitch(sidebar, text="Compensate Acceleration", command=self.convert)
         self.compensate_accel.pack(padx=10, pady=(10, 0), anchor="w")
 
         self.acceleration_rate_label = ctk.CTkLabel(sidebar, text="Acceleration rate (%/feet)")
         self.acceleration_rate_label.pack(padx=25, anchor="w")
-        self.accel_rate = MyCTkFloatInput(sidebar, on_change)
+        self.accel_rate = MyCTkFloatInput(sidebar, self.convert)
         self.accel_rate.pack(padx=25, anchor="w")
 
         btnimg = ctk.CTkImage(Image.open(f"{ASSETS_DIR}/download_256dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.png"), size=(25, 25))
