@@ -163,10 +163,8 @@ class MainFrame:
 
         # show modal window for detailed settings
         detail_win = ctk.CTkToplevel()
-        detail_win.geometry("650x600")
+        detail_win.geometry("650x800")
         detail_win.title("Aeolian 176-note MIDI Settings")
-        detail_win.grid_columnconfigure(0, weight=1)
-        detail_win.grid_rowconfigure(0, weight=1)
         detail_win.grab_set()
         DuoArtOrganSetting(detail_win, self.conf)
         self.parent.wait_window(detail_win)

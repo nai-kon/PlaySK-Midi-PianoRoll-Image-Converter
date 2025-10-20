@@ -12,8 +12,8 @@
     "compensate_accel": true,
     "accel_rate": 0.1,
     "detailed_settings": {
-        "Lower playing notes (Great)": {
-            "Midi Channel": 0,
+        "Lower playing 58 notes (Great)": {
+            "Midi Channel": 1,
             "Holes": {
                 "Great Lowest Note": {
                     "hole_no": 32,
@@ -26,7 +26,7 @@
             }
         },
         "Lower control holes (Great)": {
-            "Midi Channel": 4,
+            "Midi Channel": 15,
             "Holes": {
                 "Great Tremolo": {
                     "hole_no": 0,
@@ -150,8 +150,8 @@
                 }
             }
         },
-        "Upper playing notes (Swell)": {
-            "Midi Channel": 1,
+        "Upper playing 58 notes (Swell)": {
+            "Midi Channel": 2,
             "Holes": {
                 "Swell Lowest Note": {
                     "hole_no": 33,
@@ -164,7 +164,7 @@
             }
         },
         "Upper control holes (Swell)": {
-            "Midi Channel": 5,
+            "Midi Channel": 16,
             "Holes": {
                 "Swell Echo": {
                     "hole_no": 1,
