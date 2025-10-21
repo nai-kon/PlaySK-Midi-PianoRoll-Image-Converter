@@ -1,5 +1,5 @@
 {
-    "tempo": 60,
+    "tempo": 55,
     "dpi": 300,
     "roll_width": 15.25,
     "leftest_hole_center": 0.346666,
@@ -15,13 +15,13 @@
         "Lower playing 58 notes (Great)": {
             "Midi Channel": 1,
             "Holes": {
-                "Great Lowest Note": {
+                "Lowest Note": {
                     "hole_no": 32,
-                    "midi_note_no": 0
+                    "midi_note_no": 36
                 },
-                "Great Highest Note": {
+                "Highest Note": {
                     "hole_no": 146,
-                    "midi_note_no": 0
+                    "midi_note_no": 93
                 }
             }
         },
@@ -30,136 +30,136 @@
             "Holes": {
                 "Great Tremolo": {
                     "hole_no": 0,
-                    "midi_note_no": 0
+                    "midi_note_no": 1
                 },
                 "Great Tonal": {
                     "hole_no": 2,
-                    "midi_note_no": 0
+                    "midi_note_no": 2
                 },
                 "Great Harp": {
                     "hole_no": 4,
-                    "midi_note_no": 0
+                    "midi_note_no": 3
                 },
                 "Great Extension": {
                     "hole_no": 6,
-                    "midi_note_no": 0
+                    "midi_note_no": 4
                 },
                 "Pedal 2nd Octave": {
                     "hole_no": 8,
-                    "midi_note_no": 0
+                    "midi_note_no": 5
                 },
                 "Pedal 3rd Octave": {
                     "hole_no": 10,
-                    "midi_note_no": 0
+                    "midi_note_no": 6
                 },
                 "Great Shade#1": {
                     "hole_no": 12,
-                    "midi_note_no": 0
+                    "midi_note_no": 7
                 },
                 "Great Shade#2": {
                     "hole_no": 14,
-                    "midi_note_no": 0
+                    "midi_note_no": 8
                 },
                 "Great Shade#3": {
                     "hole_no": 16,
-                    "midi_note_no": 0
+                    "midi_note_no": 9
                 },
                 "Great Shade#4": {
                     "hole_no": 18,
-                    "midi_note_no": 0
+                    "midi_note_no": 10
                 },
                 "Great Shade#5": {
                     "hole_no": 20,
-                    "midi_note_no": 0
+                    "midi_note_no": 11
                 },
                 "Great Shade#6": {
                     "hole_no": 22,
-                    "midi_note_no": 0
+                    "midi_note_no": 12
                 },
                 "Pedal Bassoon 16'": {
                     "hole_no": 24,
-                    "midi_note_no": 0
+                    "midi_note_no": 13
                 },
                 "Pedal String 16'": {
                     "hole_no": 26,
-                    "midi_note_no": 0
+                    "midi_note_no": 14
                 },
                 "Pedal Flute F 16'": {
                     "hole_no": 28,
-                    "midi_note_no": 0
+                    "midi_note_no": 15
                 },
                 "Pedal Flute P 16'": {
                     "hole_no": 30,
-                    "midi_note_no": 0
+                    "midi_note_no": 16
                 },
                 "Great String PP": {
                     "hole_no": 148,
-                    "midi_note_no": 0
+                    "midi_note_no": 17
                 },
                 "Great String P": {
                     "hole_no": 150,
-                    "midi_note_no": 0
+                    "midi_note_no": 18
                 },
                 "Great String F": {
                     "hole_no": 152,
-                    "midi_note_no": 0
+                    "midi_note_no": 19
                 },
                 "Great Flute P": {
                     "hole_no": 154,
-                    "midi_note_no": 0
+                    "midi_note_no": 20
                 },
                 "Great Flute F": {
                     "hole_no": 156,
-                    "midi_note_no": 0
+                    "midi_note_no": 21
                 },
                 "Great Flute 4'": {
                     "hole_no": 158,
-                    "midi_note_no": 0
+                    "midi_note_no": 22
                 },
                 "Great Diapason F": {
                     "hole_no": 160,
-                    "midi_note_no": 0
+                    "midi_note_no": 23
                 },
                 "Great Piccolo": {
                     "hole_no": 162,
-                    "midi_note_no": 0
+                    "midi_note_no": 24
                 },
                 "Great Clarinet": {
                     "hole_no": 164,
-                    "midi_note_no": 0
+                    "midi_note_no": 25
                 },
                 "Great Trumpet": {
                     "hole_no": 166,
-                    "midi_note_no": 0
+                    "midi_note_no": 26
                 },
                 "Chimes Dampers Off": {
                     "hole_no": 168,
-                    "midi_note_no": 0
+                    "midi_note_no": 27
                 },
                 "L.C.W.3": {
                     "hole_no": 170,
-                    "midi_note_no": 0
+                    "midi_note_no": 28
                 },
                 "L.C.W.4": {
                     "hole_no": 172,
-                    "midi_note_no": 0
+                    "midi_note_no": 29
                 },
                 "Ventil Control 2": {
                     "hole_no": 174,
-                    "midi_note_no": 0
+                    "midi_note_no": 30
                 }
             }
         },
         "Upper playing 58 notes (Swell)": {
             "Midi Channel": 2,
             "Holes": {
-                "Swell Lowest Note": {
+                "Lowest Note": {
                     "hole_no": 33,
-                    "midi_note_no": 0
+                    "midi_note_no": 36
                 },
-                "Swell Highest Note": {
+                "Highest Note": {
                     "hole_no": 147,
-                    "midi_note_no": 0
+                    "midi_note_no": 93
                 }
             }
         },
@@ -168,123 +168,123 @@
             "Holes": {
                 "Swell Echo": {
                     "hole_no": 1,
-                    "midi_note_no": 0
+                    "midi_note_no": 1
                 },
                 "Swell Chimes": {
                     "hole_no": 3,
-                    "midi_note_no": 0
+                    "midi_note_no": 2
                 },
                 "Swell Tremolo": {
                     "hole_no": 5,
-                    "midi_note_no": 0
+                    "midi_note_no": 3
                 },
                 "Swell Harp": {
                     "hole_no": 7,
-                    "midi_note_no": 0
+                    "midi_note_no": 4
                 },
                 "Swell Trumpet": {
                     "hole_no": 9,
-                    "midi_note_no": 0
+                    "midi_note_no": 5
                 },
                 "Swell Oboe": {
                     "hole_no": 11,
-                    "midi_note_no": 0
+                    "midi_note_no": 6
                 },
                 "Swell Vox Humana": {
                     "hole_no": 13,
-                    "midi_note_no": 0
+                    "midi_note_no": 7
                 },
                 "Swell Diapason MF": {
                     "hole_no": 15,
-                    "midi_note_no": 0
+                    "midi_note_no": 8
                 },
                 "Swell Flute 16'": {
                     "hole_no": 17,
-                    "midi_note_no": 0
+                    "midi_note_no": 9
                 },
                 "Swell Flute 4'": {
                     "hole_no": 19,
-                    "midi_note_no": 0
+                    "midi_note_no": 10
                 },
                 "Swell Flute P": {
                     "hole_no": 21,
-                    "midi_note_no": 0
+                    "midi_note_no": 11
                 },
                 "Swell String Vibrato F": {
                     "hole_no": 23,
-                    "midi_note_no": 0
+                    "midi_note_no": 12
                 },
                 "Swell String F": {
                     "hole_no": 25,
-                    "midi_note_no": 0
+                    "midi_note_no": 13
                 },
                 "Swell String MF": {
                     "hole_no": 27,
-                    "midi_note_no": 0
+                    "midi_note_no": 14
                 },
                 "Swell String P": {
                     "hole_no": 29,
-                    "midi_note_no": 0
+                    "midi_note_no": 15
                 },
                 "Swell String PP": {
                     "hole_no": 31,
-                    "midi_note_no": 0
+                    "midi_note_no": 16
                 },
                 "Swell Shade#1": {
                     "hole_no": 149,
-                    "midi_note_no": 0
+                    "midi_note_no": 17
                 },
                 "Swell Shade#2": {
                     "hole_no": 151,
-                    "midi_note_no": 0
+                    "midi_note_no": 18
                 },
                 "Swell Shade#3": {
                     "hole_no": 153,
-                    "midi_note_no": 0
+                    "midi_note_no": 19
                 },
                 "Swell Shade#4": {
                     "hole_no": 155,
-                    "midi_note_no": 0
+                    "midi_note_no": 20
                 },
                 "Swell Shade#5": {
                     "hole_no": 157,
-                    "midi_note_no": 0
+                    "midi_note_no": 21
                 },
                 "Swell Shade#6": {
                     "hole_no": 159,
-                    "midi_note_no": 0
+                    "midi_note_no": 22
                 },
                 "Swell Extension": {
                     "hole_no": 161,
-                    "midi_note_no": 0
+                    "midi_note_no": 23
                 },
                 "L.C.W.1": {
                     "hole_no": 163,
-                    "midi_note_no": 0
+                    "midi_note_no": 24
                 },
                 "L.C.W.2": {
                     "hole_no": 165,
-                    "midi_note_no": 0
+                    "midi_note_no": 25
                 },
                 "Swell Soft Chimes": {
                     "hole_no": 167,
-                    "midi_note_no": 0
+                    "midi_note_no": 26
                 },
                 "Reroll": {
                     "hole_no": 169,
-                    "midi_note_no": 0
+                    "midi_note_no": 27
                 },
                 "Ventil Control  1": {
                     "hole_no": 171,
-                    "midi_note_no": 0
+                    "midi_note_no": 28
                 },
                 "Normal": {
                     "hole_no": 173,
-                    "midi_note_no": 0
+                    "midi_note_no": 29
                 },
                 "Pedal to Upper Holes": {
                     "hole_no": 175,
-                    "midi_note_no": 0
+                    "midi_note_no": 30
                 }
             }
         }

@@ -19,8 +19,23 @@ class DuoArtOrgan(BaseConverter):
 
         self.control_change_map = {}  # not used
         self.custom_note_map = {}
+        # map hole_no and note_no
+        tracker = conf.tracker_config["detailed_settings"]
         for key in ("Lower control holes (Great)", "Upper control holes (Swell)"):
-            self.custom_note_map[key["Midi Channel"]] = {v["midi_note_no"]: v["hole_no"] for v in key["Holes"].values()}
+            channel = tracker[key]["Midi Channel"] - 1
+            self.custom_note_map[channel] = {v["midi_note_no"]: v["hole_no"] + 15 for v in tracker[key]["Holes"].values()}
+        for key in ("Lower playing 58 notes (Great)", "Upper playing 58 notes (Swell)"):
+            lowest_hole_no = tracker[key]["Holes"]["Lowest Note"]["hole_no"]
+            highest_hole_no = tracker[key]["Holes"]["Highest Note"]["hole_no"]
+            lowest_midi_note_no = tracker[key]["Holes"]["Lowest Note"]["midi_note_no"]  # to organ note number
+            midi_note_no = lowest_midi_note_no
+            for hole_no in range(lowest_hole_no, highest_hole_no + 1, 2):
+                channel = tracker[key]["Midi Channel"] - 1
+                self.custom_note_map.setdefault(channel, {})
+                self.custom_note_map[channel] |= {midi_note_no: hole_no + 15}
+                midi_note_no += 1
+
+        print(self.custom_note_map)
 
         # self.custom_note_map = {
         #     # channel_no: {original_note_number: new_note_number, ...}, ...
@@ -52,8 +67,10 @@ class DuoArtOrganSetting(CustomScrollableFrame):
 
         row_no = 0
         frame = left_frame
-        for key, val in self.detailed_settings.items():
-            if key == "Upper playing 58 notes (Swell)":
+        for key in ("Upper playing 58 notes (Swell)", "Upper control holes (Swell)",
+                    "Lower playing 58 notes (Great)", "Lower control holes (Great)"):
+            val = self.detailed_settings[key]
+            if key == "Lower playing 58 notes (Great)":
                 row_no = 0
                 frame = right_frame
 
@@ -65,7 +82,7 @@ class DuoArtOrganSetting(CustomScrollableFrame):
 
             # MIDI Channel
             ctk.CTkLabel(frame, text="Midi Ch").grid(row=row_no, column=0, padx=5, pady=5)
-            tmp = ctk.CTkComboBox(frame, values=[str(i) for i in range(16)], width=80)
+            tmp = ctk.CTkComboBox(frame, values=[str(i) for i in range(1, 16 + 1)], width=80)
             tmp.set(val["Midi Channel"])
             tmp.grid(row=row_no, column=1, padx=5, pady=5)
             row_no += 1
