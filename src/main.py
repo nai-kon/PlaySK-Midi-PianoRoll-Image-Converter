@@ -168,6 +168,7 @@ class MainFrame:
         detail_win.grab_set()
         DuoArtOrganSetting(detail_win, self.conf)
         self.parent.wait_window(detail_win)
+        self.convert()
 
     def create_sidebar(self):
         sidebar = CustomScrollableFrame(self.parent, corner_radius=0, fg_color=("#CCCCCC", "#111111"))
@@ -197,11 +198,11 @@ class MainFrame:
         self.roll_width = MyCTkFloatInput(sidebar, self.convert)
         self.roll_width.pack(padx=10, anchor="w")
 
-        ctk.CTkLabel(sidebar, text="Hole 0 center position (inch)").pack(padx=10, anchor="w")
+        ctk.CTkLabel(sidebar, text="Leftest hole position (inch)").pack(padx=10, anchor="w")
         self.leftest_hole_center = MyCTkFloatInput(sidebar, self.convert)
         self.leftest_hole_center.pack(padx=10, anchor="w")
 
-        ctk.CTkLabel(sidebar, text="Hole 99 center position (inch)").pack(padx=10, anchor="w")
+        ctk.CTkLabel(sidebar, text="Rightest hole position (inch)").pack(padx=10, anchor="w")
         self.rightest_hole_center = MyCTkFloatInput(sidebar, self.convert)
         self.rightest_hole_center.pack(padx=10, anchor="w")
 

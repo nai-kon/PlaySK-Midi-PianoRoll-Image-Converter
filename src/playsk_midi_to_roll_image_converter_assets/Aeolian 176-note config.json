@@ -12,6 +12,7 @@
     "compensate_accel": true,
     "accel_rate": 0.1,
     "detailed_settings": {
+        "vertical_offset": 0.25,
         "Lower playing 58 notes (Great)": {
             "Midi Channel": 1,
             "Holes": {

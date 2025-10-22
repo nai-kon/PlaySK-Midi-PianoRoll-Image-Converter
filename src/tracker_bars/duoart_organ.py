@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
 from config import ConfigMng
-from custom_widgets import CustomScrollableFrame, MyCTkIntInput
+from custom_widgets import CustomScrollableFrame, MyCTkIntInput, MyCTkFloatInput
 
 from .base import BaseConverter
 
@@ -10,17 +10,17 @@ class DuoArtOrgan(BaseConverter):
     def __init__(self, conf: ConfigMng) -> None:
         super().__init__(conf)
         self.hole_num = 176
-        self.vertial_offset = 0.25
-        self.vertial_offset_px = int(self.roll_dpi * self.vertial_offset)
+        tracker = conf.tracker_config["detailed_settings"]
+        self.vertical_offset = tracker["vertical_offset"]
+        self.vertical_offset_px = int(self.roll_dpi * self.vertical_offset)
 
         self.custom_hole_offsets: dict[int, dict[str, float]] = {
-            note_no + 15: {"top_offset": -self.vertial_offset_px, "bottom_offset": -self.vertial_offset_px}  for note_no in range(0, 256, 2)
+            note_no + 15: {"top_offset": -self.vertical_offset_px, "bottom_offset": -self.vertical_offset_px}  for note_no in range(0, 256, 2)
         }
 
         self.control_change_map = {}  # not used
-        self.custom_note_map = {}
         # map hole_no and note_no
-        tracker = conf.tracker_config["detailed_settings"]
+        self.custom_note_map = {}
         for key in ("Lower control holes (Great)", "Upper control holes (Swell)"):
             channel = tracker[key]["Midi Channel"] - 1
             self.custom_note_map[channel] = {v["midi_note_no"]: v["hole_no"] + 15 for v in tracker[key]["Holes"].values()}
@@ -34,8 +34,6 @@ class DuoArtOrgan(BaseConverter):
                 self.custom_note_map.setdefault(channel, {})
                 self.custom_note_map[channel] |= {midi_note_no: hole_no + 15}
                 midi_note_no += 1
-
-        print(self.custom_note_map)
 
         # self.custom_note_map = {
         #     # channel_no: {original_note_number: new_note_number, ...}, ...
@@ -56,14 +54,20 @@ class DuoArtOrgan(BaseConverter):
 class DuoArtOrganSetting(CustomScrollableFrame):
     def __init__(self, parent: ctk.CTk, conf: ConfigMng) -> None:
         super().__init__(parent)
+        self.detailed_settings = conf.tracker_config.get("detailed_settings", {})
+
         self.pack(fill="both", expand=True)
 
+        # vertical offset
+        ctk.CTkLabel(self, text="Upper/Lower holes Vertical Offset (inch)").pack(side="top")
+        tmp = MyCTkFloatInput(self, width=50)
+        tmp.insert(0, self.detailed_settings["vertical_offset"])
+        tmp.pack(side="top")
         left_frame = ctk.CTkFrame(self)
         left_frame.pack(side="left", anchor="nw")
         right_frame = ctk.CTkFrame(self)
         right_frame.pack(side="right", anchor="ne")
-
-        self.detailed_settings = conf.tracker_config.get("detailed_settings", {})
+        self.detailed_settings["vertical_offset_edit"] = tmp
 
         row_no = 0
         frame = left_frame
@@ -81,7 +85,7 @@ class DuoArtOrganSetting(CustomScrollableFrame):
             row_no += 1
 
             # MIDI Channel
-            ctk.CTkLabel(frame, text="Midi Ch").grid(row=row_no, column=0, padx=5, pady=5)
+            ctk.CTkLabel(frame, text="Midi Channel").grid(row=row_no, column=0, padx=5, pady=5)
             tmp = ctk.CTkComboBox(frame, values=[str(i) for i in range(1, 16 + 1)], width=80)
             tmp.set(val["Midi Channel"])
             tmp.grid(row=row_no, column=1, padx=5, pady=5)
@@ -112,7 +116,12 @@ class DuoArtOrganSetting(CustomScrollableFrame):
                 row_no += 1
 
     def destroy(self):
-        for key, val in self.detailed_settings.items():
+        self.detailed_settings["vertical_offset"] = float(self.detailed_settings["vertical_offset_edit"].get())
+        self.detailed_settings.pop("vertical_offset_edit")
+
+        for key in ("Upper playing 58 notes (Swell)", "Upper control holes (Swell)",
+                    "Lower playing 58 notes (Great)", "Lower control holes (Great)"):
+            val = self.detailed_settings[key]
             self.detailed_settings[key]["Midi Channel"] = int(val["midi_ch_edit"].get())
             self.detailed_settings[key].pop("midi_ch_edit")
 

@@ -44,7 +44,7 @@ class WelcomMessage:
         ctk.CTkLabel(self.frame, text="- Sustain/soft pedal control change events are mapped to Hole #4 and #98 of 100 holes.").pack(padx=20, pady=5, anchor="w")
         ctk.CTkLabel(self.frame, text="- Shorten hole length adjusts the note length shorter. MIDI are often longer than the actual hole.").pack(padx=20, pady=5, anchor="w")
         ctk.CTkLabel(self.frame, text="- Image is saved as .PNG for efficient file size.").pack(padx=20, pady=5, anchor="w")
-        ctk.CTkLabel(self.frame, text="- The parameters on the sidebar refer to these position.").pack(padx=20, pady=5, anchor="w")
+        ctk.CTkLabel(self.frame, text="- The hole positions refer to these positions.").pack(padx=20, pady=5, anchor="w")
 
         image = Image.open(f"{ASSETS_DIR}/hole_param2.png")
         image = ctk.CTkImage(image, size=(image.size[0] // 1.5, image.size[1] // 1.5))
