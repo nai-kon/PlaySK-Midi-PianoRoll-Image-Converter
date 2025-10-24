@@ -1,7 +1,8 @@
 [project]
 name = "PlaySK-Midi-PianoRoll-Image-Converter"
-version = "1.1.0"
+version = "1.2.0"
 description = "Convert Midi file to Piano Roll Image"
+authors = [{ name = "Katz Sasaki" }]
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
