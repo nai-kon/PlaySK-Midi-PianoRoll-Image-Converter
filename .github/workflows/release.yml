@@ -48,6 +48,9 @@ jobs:
     - name: Install python packages
       run: uv sync
 
+    - name: Ruff linting
+      run: uv run ruff check src/
+
     - name: build binary
       run: ${{ matrix.build_cmd }}
 
