@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
 from config import ConfigMng
-from custom_widgets import CustomScrollableFrame, MyCTkIntInput, MyCTkFloatInput
+from custom_widgets import CustomScrollableFrame, MyCTkFloatInput, MyCTkIntInput
 
 from .base import BaseConverter
 

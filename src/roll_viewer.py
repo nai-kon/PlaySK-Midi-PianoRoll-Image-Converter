@@ -20,10 +20,15 @@ class RollViewer:
         self.image_label.bind("<Configure>", self.on_resize)
         self.image_label.bind("<MouseWheel>", self.on_mousewheel)
 
+        # Left-click drag scroll
+        self.image_label.bind("<Button-1>", self.on_left_click_press)
+        self.image_label.bind("<B1-Motion>", self.on_left_click_drag)
+        self.image_label.bind("<ButtonRelease-1>", self.on_left_click_release)
+        self.drag_start_y = None
+
     def on_resize(self, event):
         view_height = event.height
         if view_height != self.view_height:
-            # ウィンドウの高さが変わったときに画像を更新
             self.view_height = view_height
             self.draw()
             self.update_scrollbar()
@@ -76,3 +81,16 @@ class RollViewer:
             self.offset_y += lines * 30
 
         self.image_label.after(0, self.call_draw)
+
+    def on_left_click_press(self, event):
+        self.drag_start_y = event.y
+
+    def on_left_click_drag(self, event):
+        if self.drag_start_y is not None:
+            dy = event.y - self.drag_start_y
+            self.offset_y -= dy
+            self.drag_start_y = event.y
+            self.image_label.after(0, self.call_draw)
+
+    def on_left_click_release(self, event):
+        self.drag_start_y = None
