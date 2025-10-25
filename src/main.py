@@ -148,8 +148,10 @@ class MainFrame:
         dpi = int(self.roll_dpi.get())
         length = img_h / dpi / 12  # feet
 
-        msgbox = ctk.CTkToplevel()
-        msgbox.geometry("400x120")
+        parent_x = self.parent.winfo_rootx()
+        parent_y = self.parent.winfo_rooty()
+        msgbox = ctk.CTkToplevel(self.parent)
+        msgbox.geometry(f"400x120+{parent_x + 150}+{parent_y + 150}")
         msgbox.title("Image Information")
         msgbox.grab_set()
 
@@ -161,9 +163,10 @@ class MainFrame:
     def show_detailed_settings(self):
         from tracker_bars.duoart_organ import DuoArtOrganSetting
 
-        # show modal window for detailed settings
-        detail_win = ctk.CTkToplevel()
-        detail_win.geometry("750x800")
+        parent_x = self.parent.winfo_rootx()
+        parent_y = self.parent.winfo_rooty()
+        detail_win = ctk.CTkToplevel(self.parent)
+        detail_win.geometry(f"750x800+{parent_x + 150}+{parent_y + 50}")
         detail_win.title("Aeolian 176-note MIDI Settings")
         detail_win.grab_set()
         DuoArtOrganSetting(detail_win, self.conf)
