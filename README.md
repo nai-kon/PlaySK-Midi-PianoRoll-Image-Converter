@@ -11,6 +11,7 @@ Also the converted image might be converted to G-Code for laser perforator, usin
 
 * 88-note
 * Ampico A/B
+* Welte Licensee
 * Aeolian 176-note Duo-Art Pipe Organ
 
 In the future, more tracker bars will supported.

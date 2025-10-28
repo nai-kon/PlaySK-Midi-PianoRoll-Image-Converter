@@ -13,4 +13,5 @@ CONVERTER_CONFIG_PATHS = {
     "Ampico A": os.path.join(ASSETS_DIR, "Ampico A config.json"),
     "Ampico B": os.path.join(ASSETS_DIR, "Ampico B config.json"),
     "Aeolian 176-note": os.path.join(ASSETS_DIR, "Aeolian 176-note config.json"),
+    "Welte Licensee": os.path.join(ASSETS_DIR, "Welte Licensee config.json"),
 }

@@ -174,7 +174,7 @@ def create_converter(name: str, conf: ConfigMng) -> BaseConverter:
     elif name == convert_name[3]:
         from tracker_bars.duoart_organ import DuoArtOrgan
         return DuoArtOrgan(conf)
-    elif name == convert_name[0]:
+    elif name == convert_name[4] or name == convert_name[0]:
         return BaseConverter(conf)
     else:
         raise ValueError(f"Unknown converter type: {name}")
