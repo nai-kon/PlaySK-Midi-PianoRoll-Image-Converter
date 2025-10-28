@@ -1,11 +1,12 @@
 from config import ConfigMng
-from converter_base import BaseConverter
+
+from .base import BaseConverter
 
 
 class AmpicoA(BaseConverter):
     def __init__(self, conf: ConfigMng) -> None:
         super().__init__(conf)
-        self.control_change_map = []  # not used
+        self.control_change_map = {}  # not used
 
         # note length of long shaped holes need to be shorten
         normal_hole_h = 0.0625 * self.roll_dpi  # px
@@ -24,7 +25,7 @@ class AmpicoA(BaseConverter):
 class AmpicoB(BaseConverter):
     def __init__(self, conf: ConfigMng) -> None:
         super().__init__(conf)
-        self.control_change_map = []  # not used
+        self.control_change_map = {}  # not used
 
         # note length of long shaped holes need to be shorten
         normal_hole_h = 0.0625 * self.roll_dpi  # px

@@ -5,57 +5,64 @@ import mido
 from PIL import Image, ImageDraw
 
 from config import ConfigMng
+from const import CONVERTER_CONFIG_PATHS
 
-CONVERTER_LIST = ["88-Note", "AmpicoA", "AmpicoB"]
 
 class BaseConverter:
     """88-note class for MIDI to Image conversion."""
     def __init__(self, conf: ConfigMng) -> None:
-        self.roll_dpi = conf.dpi
-        self.roll_tempo = conf.tempo
-        self.roll_accelerate_rate_ft = float(conf.accel_rate) / 100 if conf.compensate_accel else 0
+        self.roll_dpi = conf.tracker_config["dpi"]
+        self.roll_tempo = conf.tracker_config["tempo"]
+        self.roll_accelerate_rate_ft = float(conf.tracker_config["accel_rate"]) / 100 if conf.tracker_config["compensate_accel"] else 0
 
         # in inches
         self.roll_start_pad = 2
         self.roll_end_pad = 2
-        self.roll_margin = conf.roll_side_margin
-        self.hole_width = conf.hole_width
-        self.chain_hole_spacing = conf.chain_perf_spacing
-        self.single_hole_max_len = conf.single_hole_max_len
-        self.hole_0_center = conf.hole_0_center
-        self.hole_99_center = conf.roll_width - conf.hole_99_center
+        self.roll_margin = conf.tracker_config["roll_side_margin"]
+        self.hole_width = conf.tracker_config["hole_width"]
+        self.chain_hole_spacing = conf.tracker_config["chain_perf_spacing"]
+        self.single_hole_max_len = conf.tracker_config["single_hole_max_len"]
+        self.leftest_hole_center = conf.tracker_config["leftest_hole_center"]
+        self.rightest_hole_center = conf.tracker_config["roll_width"] - conf.tracker_config["rightest_hole_center"]
         self.hole_num = 100
         self.roll_color = 120  # in grayscale
 
         self.custom_hole_offsets: dict[int, dict[str, float]] = {
-            # 88-note is not used. For Duo-Art or Ampico etc... 
-            # note_number: {"top hole offset": XX (inch), "bottom hole offset": XX (inch)} 
-        }  
+            # 88-note is not used. For Duo-Art or Ampico etc...
+            # note_number: {"top hole offset": XX (inch), "bottom hole offset": XX (inch)}
+        }
 
         # in pixels
         self.roll_start_pad_px = int(self.roll_dpi * self.roll_start_pad)
         self.roll_end_pad_px = int(self.roll_dpi * self.roll_end_pad)
         self.roll_margin_px = int(self.roll_dpi * self.roll_margin)
-        self.roll_width_px = int(self.roll_dpi * conf.roll_width)
+        self.roll_width_px = int(self.roll_dpi * conf.tracker_config["roll_width"])
         self.hole_width_px = int(self.roll_dpi * self.hole_width)
         self.chain_perforation_spacing_px = int(self.roll_dpi * self.chain_hole_spacing)
         self.single_hole_max_len_px = int(self.roll_dpi * self.single_hole_max_len)
-        self.shorten_hole_px = conf.shorten_len
+        self.shorten_hole_px = conf.tracker_config["shorten_len"]
 
-        self.control_change_map = [
-            {"controlChangeNo": 64, "midiNoteNo": 18},
-            {"controlChangeNo": 67, "midiNoteNo": 113},
-        ]
+        self.control_change_map: dict[int, int] = {
+            # control_change_number: midiNoteNo
+            64: 18,
+            67: 113,
+        }
+
+        self.custom_note_map: dict[int, dict[int, int]] = {
+            # channel_no: {original_note_number: new_note_number, ...},
+            # not used in 88-note
+        }
+
         self.hole_x_list = [self._get_hole_x(i) for i in range(128)]
-        self.out_img: Image.Image | None = None
-        self.draw: ImageDraw | None = None
+        self.out_img: Image.Image
+        self.draw: ImageDraw.ImageDraw
 
     def get_roll_acceleration_rate(self, px: float) -> float:
         cur_feet = px / self.roll_dpi / 12.0
         return (1 + self.roll_accelerate_rate_ft) ** cur_feet
 
     def _get_hole_x(self, note_no: int) -> int:
-        return int(self.roll_dpi * (self.roll_margin + self.hole_0_center + ((note_no) * (self.hole_99_center - self.hole_0_center) / (self.hole_num - 1)) - (self.hole_width / 2)))
+        return int(self.roll_dpi * (self.roll_margin + self.leftest_hole_center + ((note_no) * (self.rightest_hole_center - self.leftest_hole_center) / (self.hole_num - 1)) - (self.hole_width / 2)))
 
     def get_tick_to_px(self, tick_len, tempo: int, bpm: float, ppq: int) -> float:
         return ((tick_len * self.roll_dpi * tempo * 1.2) / (bpm * ppq))
@@ -65,7 +72,7 @@ class BaseConverter:
         hole_x: int = self.hole_x_list[note_no - 15]
         hole_y1: float = self.get_tick_to_px(on_tick, tempo, bpm, ppq) + self.roll_start_pad_px
         hole_y2: float = hole_y1 + hole_h
-        
+
         # custom hole offsets
         if (offset := self.custom_hole_offsets.get(note_no)) is not None:
             hole_y1 += offset["top_offset"]
@@ -102,7 +109,7 @@ class BaseConverter:
             ppq = mid.ticks_per_beat
             bpm = 80.0
 
-            note_on_ticks: list[int | None] = [0] * 128
+            note_on_ticks: list[int] = [0] * 512
             initialized = False
             total_ticks = 0
             for track in mid.tracks:
@@ -129,25 +136,27 @@ class BaseConverter:
                         initialized = True
 
                     if msg.type in ("note_on", "note_off", "control_change"):
-                        for map in self.control_change_map:
-                            if msg.type == "control_change" and msg.control == map["controlChangeNo"]:
-                                if msg.value > 0:
-                                    note_on_ticks[map["midiNoteNo"]] = abs_tick
-                                elif note_on_ticks[map["midiNoteNo"]] is not None:
-                                    self.draw_hole(map["midiNoteNo"], self.roll_tempo, bpm, ppq, note_on_ticks[map["midiNoteNo"]], abs_tick)
-                                    note_on_ticks[map["midiNoteNo"]] = None  # some midi has error, msg.value=0 multiple time. So, ignore it.
+                        if msg.type == "control_change" and msg.control in self.control_change_map:
+                            mapped_note_no = self.control_change_map[msg.control]
+                            if msg.value > 0:
+                                note_on_ticks[mapped_note_no] = abs_tick
+                            elif note_on_ticks[mapped_note_no] != -1:
+                                self.draw_hole(mapped_note_no, self.roll_tempo, bpm, ppq, note_on_ticks[mapped_note_no], abs_tick)
+                                note_on_ticks[mapped_note_no] = -1  # some midi has error, msg.value=0 multiple time. So, ignore it.
 
                         if msg.type == "note_on" and msg.velocity > 0:
-                            note_on_ticks[msg.note] = abs_tick
+                            note_no = self.custom_note_map.get(msg.channel, {}).get(msg.note, msg.note)
+                            note_on_ticks[note_no] = abs_tick
                         elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
-                            self.draw_hole(msg.note, self.roll_tempo, bpm, ppq, note_on_ticks[msg.note], abs_tick)
+                            note_no = self.custom_note_map.get(msg.channel, {}).get(msg.note, msg.note)
+                            self.draw_hole(note_no, self.roll_tempo, bpm, ppq, note_on_ticks[note_no], abs_tick)
 
         except Exception as e:
             print(e)
             return False
 
         return True
-            
+
     def saveimg(self, savepath: str) -> None:
         if self.out_img is not None:
             self.out_img.save(savepath)
@@ -155,13 +164,17 @@ class BaseConverter:
 
 def create_converter(name: str, conf: ConfigMng) -> BaseConverter:
     """Simple factory method of converter class"""
-    if name == CONVERTER_LIST[1]:
-        from converter_ampico import AmpicoA
+    convert_name = tuple(CONVERTER_CONFIG_PATHS.keys())
+    if name == convert_name[1]:
+        from tracker_bars.ampico import AmpicoA
         return AmpicoA(conf)
-    if name == CONVERTER_LIST[2]:
-        from converter_ampico import AmpicoB
+    if name == convert_name[2]:
+        from tracker_bars.ampico import AmpicoB
         return AmpicoB(conf)
-    elif name == CONVERTER_LIST[0]:
+    elif name == convert_name[3]:
+        from tracker_bars.duoart_organ import DuoArtOrgan
+        return DuoArtOrgan(conf)
+    elif name == convert_name[4] or name == convert_name[0]:
         return BaseConverter(conf)
     else:
         raise ValueError(f"Unknown converter type: {name}")

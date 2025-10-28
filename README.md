@@ -1,4 +1,4 @@
-# PlaySK MIDI to Piano Roll Image Converter Ver1.1
+# PlaySK MIDI to Piano Roll Image Converter Ver1.2
 
 Converts MIDI file to piano roll image.
 ![Overall System](System_Overview.png)
@@ -11,8 +11,10 @@ Also the converted image might be converted to G-Code for laser perforator, usin
 
 * 88-note
 * Ampico A/B
+* Welte Licensee
+* Aeolian 176-note Duo-Art Pipe Organ
 
-In the future, more tracker bars will supported such as 65-note, Aeolian 176-note, Duo-Art, etc.
+In the future, more tracker bars will supported.
 
 # Tips
 

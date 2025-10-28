@@ -1,7 +1,8 @@
 [project]
 name = "PlaySK-Midi-PianoRoll-Image-Converter"
-version = "1.1.0"
+version = "1.2.0"
 description = "Convert Midi file to Piano Roll Image"
+authors = [{ name = "Katz Sasaki" }]
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
@@ -18,7 +19,21 @@ dependencies = [
 dev = [
     "pyinstaller==6.1.0",
     "pip-licenses>=4.3.3,<5",
+    "ruff>=0.14.1",
 ]
 
 [tool.uv]
 package = false
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.ruff]
+lint.select = ["E", "F", "B", "I", "COM", "A", "UP", "Q", "SIM", "W"]
+lint.ignore = [
+    "E402",
+    "E501",
+    "SIM300",
+    "UP008",
+    "B905"
+]
