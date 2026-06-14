@@ -17,14 +17,18 @@ class RollViewer:
 
         self.set_image(image)
 
+        self.image_label.bind("<KeyPress>", self.on_key)
         self.image_label.bind("<Configure>", self.on_resize)
-        self.image_label.bind("<MouseWheel>", self.on_mousewheel)
 
         # Left-click drag scroll
+        self.image_label.bind("<MouseWheel>", self.on_mousewheel)
         self.image_label.bind("<Button-1>", self.on_left_click_press)
         self.image_label.bind("<B1-Motion>", self.on_left_click_drag)
         self.image_label.bind("<ButtonRelease-1>", self.on_left_click_release)
         self.drag_start_y = None
+
+        self.image_label.focus()
+
 
     def on_resize(self, event):
         view_height = event.height
@@ -69,6 +73,23 @@ class RollViewer:
         self.draw()
         self.update_scrollbar()
 
+    def on_key(self, event):
+        # scroll key events
+        if event.keysym == "Home":
+            self.offset_y = 0
+        elif event.keysym == "End":
+            self.offset_y = self.resize_img_h - self.view_height
+        elif event.keysym == "Up":
+            self.offset_y -= 100
+        elif event.keysym == "Down":
+            self.offset_y += 100
+        elif event.keysym == "Prior":
+            self.offset_y -= self.view_height
+        elif event.keysym == "Next":
+            self.offset_y += self.view_height
+
+        self.image_label.after(0, self.call_draw)
+
     def on_mousewheel(self, event):
         self.offset_y -= event.delta * 2
         self.image_label.after(0, self.call_draw)
@@ -83,6 +104,7 @@ class RollViewer:
         self.image_label.after(0, self.call_draw)
 
     def on_left_click_press(self, event):
+        self.image_label.focus()
         self.drag_start_y = event.y
 
     def on_left_click_drag(self, event):
