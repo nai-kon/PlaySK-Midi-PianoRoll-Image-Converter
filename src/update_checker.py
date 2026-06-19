@@ -10,6 +10,7 @@ import webbrowser
 
 import certifi
 import customtkinter as ctk
+from packaging.version import Version
 from PIL import Image
 
 from config import ConfigMng
@@ -62,8 +63,8 @@ class NotifyUpdate:
     def need_notify(self, ver: str | None) -> bool:
         print(ver, self.conf.base_config["update_notified_version"], APP_VERSION)
         return (ver is not None and
-            ver > self.conf.base_config["update_notified_version"] and
-            ver > APP_VERSION)
+            Version(ver) > Version(self.conf.base_config["update_notified_version"]) and
+            Version(ver) > Version(APP_VERSION))
 
     @classmethod
     def check(cls, conf: ConfigMng) -> threading.Thread:
